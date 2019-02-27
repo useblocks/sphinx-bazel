@@ -56,7 +56,7 @@ Automated documentation
 
 .. code-block:: rst
 
-   .. autobazel-rule:: //workspace//package/my_rule.blz::rule_one
+   .. autobazel-rule:: //workspace/package/my_rule.blz::rule_one
 
 Following directives are supported:
 
@@ -70,15 +70,15 @@ Following directives are supported:
 
 .. code-block:: rst
 
-   .. autobazel-workspace:: My workspace
+   .. autobazel-workspace:: //workspace/
 
-   .. autobazel-package:: My package
+   .. autobazel-package:: //workspace/package
 
-   .. autobazel-target:: My target
+   .. autobazel-target:: //workspace/package/my_rule.blz
 
-   .. autobazel-rule:: My rule
+   .. autobazel-rule:: //workspace/package/my_rule.blz::rule_one
 
-   .. autobazel-macro:: My macro
+   .. autobazel-macro:: //workspace/package/my_rule.blz::macro_one
 
 .. toctree::
    :maxdepth: 2

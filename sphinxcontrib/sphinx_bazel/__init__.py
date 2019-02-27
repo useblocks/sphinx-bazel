@@ -1,1 +1,1 @@
-from sphinxcontrib.needs.needs import setup  # NOQA
+from sphinxcontrib.sphinx_bazel.sphinx_bazel import setup
