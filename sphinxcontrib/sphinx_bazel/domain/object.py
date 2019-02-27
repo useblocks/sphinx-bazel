@@ -2,6 +2,7 @@ import re
 
 from docutils.parsers.rst import directives
 
+from sphinx import addnodes
 from sphinx.directives import ObjectDescription
 
 
@@ -49,5 +50,8 @@ class BazelObject(ObjectDescription):
         if m is None:
             raise ValueError
         package, after_package, target, = m.groups()
-        
-        return '/'.join(package), "test"
+
+        signode['workspace'] = self.env.ref_context['bazel:workspace']
+        nodetext = package + '(workspace: ' + signode['workspace'] + ')'
+        signode += addnodes.desc_addname(nodetext, nodetext)
+        return sig, sig

@@ -26,49 +26,6 @@ To describe a bazel package use ``bazel:package::``::
 
 **Result**
 
-.. bazel:package:: /#+34/testmy/package
+.. bazel:package:: //testmy/package
 
    Package content
-
-
-
-
-python domain tests
--------------------
-
-**module**
-
-.. py:module:: my_module
-
-*os*
-
-.. py:module:: os
-
-**function**
-
-.. py:function:: my_function(arg1, arg2, name=arg3)
-
-   my test function
-
-   :type test: tuple(float, string)
-   :param test: argh
-
-
-**exception**
-
-.. py:exception:: MY_EXCEPTION
-
-   Ohh nooo, BUMM!
-
-
-**class**
-
-.. py:class:: Foo
-
-   .. py:method:: quux()
-
--- or --
-
-.. py:class:: Bar
-
-.. py:method:: Bar.quux()
