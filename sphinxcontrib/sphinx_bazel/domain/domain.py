@@ -35,7 +35,7 @@ from sphinx.locale import l_
 from sphinx.util.nodes import make_refnode
 
 from sphinxcontrib.sphinx_bazel.domain.workspace import BazelWorkspace
-from sphinxcontrib.sphinx_bazel.domain.package import BazelPackage
+from sphinxcontrib.sphinx_bazel.domain.object import BazelObject
 
 
 class BazelDomain(Domain):
@@ -77,7 +77,8 @@ class BazelDomain(Domain):
     }
     directives = {
         'workspace': BazelWorkspace,
-        'package': BazelPackage,
+        'package': BazelObject,
+        'target': BazelObject,
     }
     roles = {}
     initial_data = {

@@ -1,0 +1,22 @@
+"""
+**My workspace**
+
+This workspace is:
+
+* nice
+* awesome
+* something between
+
+.. code-block:: python
+
+   # Here see some python code
+   import os
+
+   if os.path.exist("this_file"):
+       print("yehaa")
+
+That's it.
+
+"""
+
+workspace(name = "bazel_workspace")

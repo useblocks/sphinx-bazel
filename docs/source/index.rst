@@ -14,8 +14,6 @@ Following Bazel objects are supported:
 * Workspace
 * Package
 * Target
-* Rule
-* Macro
 
 The documentation can be written by hand or can be generated automatically based on existing Bazel folders and files.
 
@@ -24,31 +22,34 @@ Manual documentation
 
 .. code-block:: rst
 
-   .. bazel:rule:: My Bazel rule
+   .. bazel:target:: //my/package:target
 
-      This **Bazel** rule builds my sources.
+      This **Bazel** target builds my sources.
+
+**Result**
+
+.. bazel:workspace:: dummy_workspace
+      :hide:
+
+.. bazel:target:: //my/package:target
+
+   This **Bazel** target builds my sources.
 
 Following domain-specific directives are provided:
 
  * bazel:workspace
  * bazel:package
  * bazel:target
- * bazel:rule
- * bazel:macro
 
 **Examples**
 
 .. code-block:: rst
 
-   .. bazel:workspace:: My workspace
+   .. bazel:workspace:: my_workspace
 
-   .. bazel:package:: My package
+   .. bazel:package:: //my/package
 
-   .. bazel:target:: My target
-
-   .. bazel:rule:: My rule
-
-   .. bazel:macro:: My macro
+   .. bazel:target:: //my/package:target
 
 
 Automated documentation
@@ -56,29 +57,20 @@ Automated documentation
 
 .. code-block:: rst
 
-   .. autobazel-rule:: //workspace/package/my_rule.blz::rule_one
+   .. autobazel-workspace:: /home/me/projects/project_a
 
 Following directives are supported:
 
  * autobazel-workspace
  * autobazel-package
- * autobazel-target
- * autobazel-rule
- * autobazel-macro
 
 **Examples**
 
 .. code-block:: rst
 
-   .. autobazel-workspace:: //workspace/
+   .. autobazel-workspace:: /home/me/projects/project_a
 
-   .. autobazel-package:: //workspace/package
-
-   .. autobazel-target:: //workspace/package/my_rule.blz
-
-   .. autobazel-rule:: //workspace/package/my_rule.blz::rule_one
-
-   .. autobazel-macro:: //workspace/package/my_rule.blz::macro_one
+   .. autobazel-package:: /home/me/projects/project_a/package
 
 .. toctree::
    :maxdepth: 2
