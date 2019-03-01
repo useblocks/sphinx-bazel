@@ -1,22 +1,10 @@
 """
-**My workspace**
-
-This workspace is:
-
-* nice
-* awesome
-* something between
+**My workspace description**
 
 .. code-block:: python
 
    # Here see some python code
-   import os
-
-   if os.path.exist("this_file"):
-       print("yehaa")
-
-That's it.
-
+   print("awesome")
 """
 
-workspace(name = "bazel_workspace")
+workspace(name = "hello_world_workspace")

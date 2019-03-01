@@ -4,7 +4,7 @@ import sphinx
 from pkg_resources import parse_version
 
 from sphinxcontrib.sphinx_bazel.domain.domain import BazelDomain
-from sphinxcontrib.sphinx_bazel.directives import AutobazelWorkspaceDirective
+from sphinxcontrib.sphinx_bazel.autobazel.common import AutobazelCommonDirective
 
 
 sphinx_version = sphinx.__version__
@@ -19,9 +19,10 @@ VERSION = '0.1.0'
 
 
 def setup(app):
-    log = logging.getLogger(__name__)
     app.add_domain(BazelDomain)
-    app.add_directive('autobazel-workspace', AutobazelWorkspaceDirective)
+    app.add_directive('autobazel-workspace', AutobazelCommonDirective)
+    app.add_directive('autobazel-package', AutobazelCommonDirective)
+    app.add_directive('autobazel-target', AutobazelCommonDirective)
 
     return {'version': VERSION}  # identifies the version of our extension
 

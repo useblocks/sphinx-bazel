@@ -1,1 +1,0 @@
-from sphinxcontrib.sphinx_bazel.directives.autobazel_workspace import AutobazelWorkspaceDirective
