@@ -33,7 +33,6 @@ Automated documentation
 
    .. autobazel-workspace:: ./bazel_example
       :packages:
-      :targets:
 
 **Result**
 
@@ -83,6 +82,23 @@ Manual documentation
 
 
 See :ref:`bazel_domain` for the complete documentation.
+
+
+Motivation
+----------
+
+This sphinx extension is based on the needs of a software development team inside a german automotive company.
+
+The project team was searching a small and practical way to add project-specific information
+(like requirements, test-cases, user manuals) to Bazel objects and accumulate this information inside a single
+sphinx project.
+
+``Sphinx-Bazel`` is part of a software bundle, which was designed to support the development of
+ISO 26262 compliant software. Other tools are:
+`sphinx-need <https://sphinxcontrib-needs.readthedocs.io>`_,
+`sphinx-test-reports <https://sphinx-test-reports.readthedocs.io>`_ and
+`tox-envreport <https://tox-envreport.readthedocs.io>`_.
+
 
 Contents
 --------

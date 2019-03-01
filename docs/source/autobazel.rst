@@ -1,6 +1,6 @@
 .. _autobazel:
 
-autobazel
+Autobazel
 =========
 
 Autobazel-directives allow the automatically documentation of Bazel workspaces, packages and targets.
