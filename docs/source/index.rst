@@ -84,10 +84,11 @@ Manual documentation
 
 See :ref:`bazel_domain` for the complete documentation.
 
+Contents
+--------
 
 .. toctree::
    :maxdepth: 3
-   :caption: Contents:
 
    domain
    autobazel
