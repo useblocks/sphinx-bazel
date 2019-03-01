@@ -3,9 +3,9 @@
 Autobazel
 =========
 
-Autobazel-directives allow the automatically documentation of Bazel workspaces, packages and targets.
+Autobazel-directives allow the automatic documentation of Bazel workspaces, packages and targets.
 
-The showed examples document always the same example workspace, which structure and content is explained at
+All showed examples are based on the same Bazel example workspace, which structure and content is explained at
 the end of this page: :ref:`project_example`.
 
 .. contents::
