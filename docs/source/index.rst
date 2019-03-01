@@ -25,6 +25,11 @@ For automated documentation of existing Bazel workspaces ``Sphinx-Bazel`` provid
 * :ref:`autobazel_package`
 * :ref:`autobazel_target`
 
+``Sphinx-Bazel`` supports and renders rst-syntax
+(`reStructuredText <http://docutils.sourceforge.net/docs/user/rst/quickref.html>`_) in
+`Docstrings <https://www.python.org/dev/peps/pep-0257/>`_ of the files ``WORKSPACE``, ``BUILD`` and any
+target with file-extension ``.py`` or ``.bzl``.
+
 
 Automated documentation
 -----------------------

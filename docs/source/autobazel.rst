@@ -195,10 +195,14 @@ Documents a single Bazel target::
 
 Like in :ref:`autobazel_package` please make sure that a workspace got defined.
 
+``autobazel-target`` searches for docstrings in files with extension ``.py`` or ``.bzl`` and use this as
+target-description. Other file-extension are not supported, as they normally do not follow the Python syntax.
+
+
 workspace
 ~~~~~~~~~
 
-If ``:workspace`` is given, the workspace name will get added to package and targets::
+If ``:workspace`` is given, the workspace name will get added to target::
 
    .. autobazel-target:: //main:hello-world.bzl
       :workspace:
@@ -211,7 +215,7 @@ If ``:workspace`` is given, the workspace name will get added to package and tar
 workspace_path
 ~~~~~~~~~~~~~~
 
-If ``:workspace_path`` is given, the workspace path will get added to package and targets::
+If ``:workspace_path`` is given, the workspace path will get added to target::
 
    .. autobazel-target:: //main:hello-world.bzl
       :workspace_path:
