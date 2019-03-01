@@ -1,3 +1,5 @@
+.. _bazel_domain:
+
 Bazel domain
 ============
 
@@ -14,7 +16,9 @@ other Sphinx extensions.
 .. contents::
    :local:
 
-Bazel Workspace
+.. _domain_workspace:
+
+bazel:workspace
 ---------------
 
 To describe a bazel workspace use ``bazel:workspace``::
@@ -36,7 +40,7 @@ hide
 ~~~~
 
 ``:hide:`` can be used to get the defined workspace not printed into the document.
-However it was created and packages/targets defined after this get assigned to it. ::
+But it was created and packages/targets defined after this get assigned to it. ::
 
    .. bazel:workspace:: my_invisible_workspace
       :hide:
@@ -70,8 +74,9 @@ Use ``:path:`` like this::
 
    Some workspace description.
 
+.. _domain_package:
 
-Bazel Package
+bazel:package
 -------------
 
 To describe a Bazel package use ``bazel:package``::
@@ -147,7 +152,9 @@ workspace_path
 
    Some input
 
-Bazel Target
+.. _domain_target:
+
+bazel:target
 ------------
 
 To describe a Bazel target use ``bazel:target``::

@@ -3,7 +3,7 @@
 
 .. code-block:: python
 
-   # Here see some python code
+   # Some python code
    print("awesome")
 """
 

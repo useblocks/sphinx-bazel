@@ -7,49 +7,23 @@ Sphinx-Bazel: rules inside sphinx
 =================================
 
 ``Sphinx-Bazel`` is an extension for the `sphinx documentation generator <hhtps://sphinx-doc.org>`_ and allows the
-documentation of `Bazel <https://bazel.build>`_ objects inside any sphinx project.
-
-Following Bazel objects are supported:
+documentation of following `Bazel <https://bazel.build>`_ objects inside any sphinx project:
 
 * Workspace
 * Package
 * Target
 
-The documentation can be written by hand or can be generated automatically based on existing Bazel folders and files.
+``Sphinx-Bazel`` provides a Bazel domain to Sphinx, which allows the manual documentation of Bazel objects:
 
-Manual documentation
---------------------
+* :ref:`domain_workspace`
+* :ref:`domain_package`
+* :ref:`domain_target`
 
-.. code-block:: rst
+For automated documentation of existing Bazel workspaces ``Sphinx-Bazel`` provides the following directives:
 
-   .. bazel:target:: //my/package:target
-
-      This **Bazel** target builds my sources.
-
-**Result**
-
-.. bazel:workspace:: dummy_workspace
-      :hide:
-
-.. bazel:target:: //my/package:target
-
-   This **Bazel** target builds my sources.
-
-Following domain-specific directives are provided:
-
- * bazel:workspace
- * bazel:package
- * bazel:target
-
-**Examples**
-
-.. code-block:: rst
-
-   .. bazel:workspace:: my_workspace
-
-   .. bazel:package:: //my/package
-
-   .. bazel:target:: //my/package:target
+* :ref:`autobazel_workspace`
+* :ref:`autobazel_package`
+* :ref:`autobazel_target`
 
 
 Automated documentation
@@ -57,27 +31,68 @@ Automated documentation
 
 .. code-block:: rst
 
-   .. autobazel-workspace:: /home/me/projects/project_a
+   .. autobazel-workspace:: ./bazel_example
+      :packages:
+      :targets:
 
-Following directives are supported:
+**Result**
 
- * autobazel-workspace
- * autobazel-package
+.. autobazel-workspace:: ./bazel_example
+      :packages:
 
-**Examples**
+
+Please take a look into :ref:`autobazel` for the complete documentation.
+
+
+Manual documentation
+--------------------
 
 .. code-block:: rst
 
-   .. autobazel-workspace:: /home/me/projects/project_a
+   .. bazel:workspace:: my_workspace
+      :path: c:\workspaces\project_x
 
-   .. autobazel-package:: /home/me/projects/project_a/package
+      Stores *files* and everything else.
+
+   .. bazel:target:: //main
+      :workspace:
+
+      Stores some _code_
+
+   .. bazel:target:: //main:build
+      :workspace_path:
+
+      This **Bazel** target builds my sources.
+
+**Result**
+
+.. bazel:workspace:: my_workspace
+   :path: c:\workspaces\project_x
+
+   Stores *files* and everything else.
+
+.. bazel:target:: //main
+   :workspace:
+
+   Stores some code.
+
+.. bazel:target:: //main:build
+   :workspace_path:
+
+   This **Bazel** target builds my sources.
+
+
+See :ref:`bazel_domain` for the complete documentation.
+
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    domain
    autobazel
+
+
 
 
 

@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 # REs for Bazel signatures
 bzl_sig_re = re.compile(
     r'''^  \/\/([\w\/]*)     # package name
-           (:([\w]*))?       # target name
+           (:([\w\/.-]*))?       # target name
            $                 # and nothing more
           ''', re.VERBOSE)
 
@@ -60,6 +60,7 @@ class BazelObject(ObjectDescription):
         """
         m = bzl_sig_re.match(sig)
         if m is None:
+            logger.error("Sphinx-Bazel: Parse problems with signature: {}".format(sig))
             raise ValueError
         package, after_package, target, = m.groups()
 
