@@ -589,8 +589,8 @@ The following documentation of the complete Bazel Workspace uses every available
        :macros:
        :implementations:
        :workspace:              // from here layout options only
-       :implementation:
        :workspace_path:
+       :implementation:
 
 .. autobazel-workspace:: ./bazel_example
    :packages:
@@ -600,3 +600,4 @@ The following documentation of the complete Bazel Workspace uses every available
    :implementations:
    :workspace:
    :workspace_path:
+   :implementation:
