@@ -86,6 +86,9 @@ class AutobazelCommonDirective(Directive):
             return self._handle_target()
         elif 'rule' in self.name:
             return self._handle_rule()
+        elif 'macro' in self.name or 'implementation' in self.name:
+            return self._handle_macro_implementation()
+
 
         return []
 
@@ -144,6 +147,10 @@ class AutobazelCommonDirective(Directive):
                         workspace_rst += "\n   :targets:"
                     if self.options.get("rules", False) is None:
                         workspace_rst += "\n   :rules:"
+                    if self.options.get("implementations", False) is None:
+                        workspace_rst += "\n   :implementations:"
+                    if self.options.get("macros", False) is None:
+                        workspace_rst += "\n   :macros:"
                     if self.options.get("implementation", False) is None:
                         workspace_rst += "\n   :implementation:"
 
@@ -200,6 +207,10 @@ class AutobazelCommonDirective(Directive):
                             package_rst += "\n   :workspace_path:"
                         if self.options.get("rules", False) is None:
                             package_rst += "\n   :rules:"
+                        if self.options.get("implementations", False) is None:
+                            package_rst += "\n   :implementations:"
+                        if self.options.get("macros", False) is None:
+                            package_rst += "\n   :macros:"
                         if self.options.get("implementation", False) is None:
                             package_rst += "\n   :implementation:"
 
@@ -232,24 +243,32 @@ class AutobazelCommonDirective(Directive):
             target_docstring = ""
 
         options_rst = ""
-        if self.options.get("workspace", False) is None:
-            options_rst += "   :workspace:\n"
-        if self.options.get("workspace_path", False) is None:
-            options_rst += "   :workspace_path:\n"
+        if self.options.get('hide', False) is None:  # If hide is set, no target output
+            target_rst = ""
+        else:
+            if self.options.get("workspace", False) is None:
+                options_rst += "   :workspace:\n"
+            if self.options.get("workspace_path", False) is None:
+                options_rst += "   :workspace_path:\n"
 
-        target_rst = """
+            target_rst = """
 .. bazel:target:: {target}
 {options}
    {docstring}
-        """.format(target=target,
-                   options=options_rst,
-                   docstring="\n   ".join(target_docstring.split('\n')))
+            """.format(target=target,
+                       options=options_rst,
+                       docstring="\n   ".join(target_docstring.split('\n')))
 
-        # Add rule information
-        if self.options.get('rules', False) is None and file_extension in ['.bzl']:
-            # Check for rules
+        # Add rule, macro, implementation information
+        if (self.options.get('rules', False) is None
+                or self.options.get('macros', False) is None
+                or self.options.get('implementations', False) is None) \
+                and file_extension in ['.bzl']:
+            # Check for rules, macros and implementations
             with open(target_path) as f:
                 rule_names = []
+                macro_names = []
+                implementation_names = []
                 try:
                     tree = ast.parse(f.read(), target_path)
                     for element in tree.body:
@@ -259,22 +278,41 @@ class AutobazelCommonDirective(Directive):
                                 and isinstance(element.value, ast.Call)\
                                 and element.value.func.id == 'rule':
                             rule_names.append(element.targets[0].id)
-
+                        elif isinstance(element, ast.FunctionDef):
+                            # rule_implementation get only 'ctx as argument. Nothing else.
+                            if len(element.args.args) == 1 and element.args.args[0].arg == 'ctx':
+                                implementation_names.append(element.name)
+                            # if it does not get 'ctx' as argument, it must be a macro.
+                            else:
+                                macro_names.append(element.name)
                 except SyntaxError:
                     self.log.error('Could not parse target: '.format(target_path))
                     return []
 
-            for rule_name in rule_names:
-                rule_signature = "{target}:{rule}".format(
-                    target=target,
-                    rule=rule_name)
-                target_rst += "\n.. autobazel-rule:: {rule}".format(rule=rule_signature)
-                if self.options.get("workspace", False) is None:
-                    target_rst += "\n   :workspace:"
-                if self.options.get("workspace_path", False) is None:
-                    target_rst += "\n   :workspace_path:"
-                if self.options.get("implementation", False) is None:
-                    target_rst += "\n   :implementation:"
+            if self.options.get('rules', False) is None:
+                for rule_name in rule_names:
+                    rule_signature = "{target}:{rule}".format(
+                        target=target,
+                        rule=rule_name)
+                    target_rst += "\n.. autobazel-rule:: {rule}".format(rule=rule_signature)
+                    target_rst += self._add_options()
+
+            if self.options.get('macros', False) is None:
+                for macro_name in macro_names:
+                    macro_signature = "{target}:{macro}".format(
+                        target=target,
+                        macro=macro_name)
+                    target_rst += "\n.. autobazel-macro:: {macro}".format(macro=macro_signature)
+                    target_rst += self._add_options()
+
+            if self.options.get('implementations', False) is None:
+                for implementation_name in implementation_names:
+                    implementation_signature = "{target}:{implementation}".format(
+                        target=target,
+                        implementation=implementation_name)
+                    target_rst += "\n.. autobazel-implementation:: {implementation}".format(
+                        implementation=implementation_signature)
+                    target_rst += self._add_options()
 
         self.state_machine.insert_input(target_rst.split('\n'),
                                         self.state_machine.document.attributes['source'])
@@ -336,3 +374,72 @@ class AutobazelCommonDirective(Directive):
                                         self.state_machine.document.attributes['source'])
 
         return []
+
+    def _handle_macro_implementation(self):
+        macro = self.arguments[0]
+        macro_name = macro.rsplit(':', 1)[1]
+
+        macro_file_path = os.path.join(self.workspace_path_abs,
+                                       macro.replace('//', '').rsplit(":", 1)[0].replace(':', '/'))
+
+        if not os.path.exists(macro_file_path):
+            self.log.error("Target for macro does not exist: {target_path}".format(target_path=macro_file_path))
+            return []
+
+        file_path, file_extension = os.path.splitext(macro_file_path)
+        macro_doc = ""
+        if file_extension in ['.bzl']:  # Only check for docstring, if we are sure AST can handle it.
+            with open(macro_file_path) as f:
+                try:
+                    tree = ast.parse(f.read(), macro_file_path)
+                    for element in tree.body:
+                        if isinstance(element, ast.FunctionDef) and element.name == macro_name:
+                            # ToDo: If we shall document an implementation, we should check if *ctx* is the only
+                            # ToDo: argument
+                            try:
+                                macro_doc = element.body[0].value.s
+                            except [KeyError, AttributeError, IndexError]:
+                                macro_doc = ""
+                except SyntaxError:
+                    # Looks like file has no Python based syntax. So no documentation to catch
+                    macro_doc = ""
+
+        # We have have found a rule_doc in the tree, but no value/None was set.
+        if macro_doc is None:
+            macro_doc = ""
+
+        options_rst = ""
+        if self.options.get("workspace", False) is None:
+            options_rst += "   :workspace:\n"
+        if self.options.get("workspace_path", False) is None:
+            options_rst += "   :workspace_path:\n"
+
+        macro_rst = """
+.. bazel:macro:: {macro}
+{options}
+   {docstring}
+        """.format(macro=macro,
+                   options=options_rst,
+                   docstring="\n   ".join(macro_doc.split('\n')))
+
+        self.state_machine.insert_input(macro_rst.split('\n'),
+                                        self.state_machine.document.attributes['source'])
+
+        return []
+
+    def _add_options(self):
+        """
+        Adds needed options
+        """
+        directive_rst = ""
+        if self.options.get("workspace", False) is None:
+            directive_rst += "\n   :workspace:"
+        if self.options.get("workspace_path", False) is None:
+            directive_rst += "\n   :workspace_path:"
+        if self.options.get("implementations", False) is None:
+            directive_rst += "\n   :implementations:"
+        if self.options.get("macros", False) is None:
+            directive_rst += "\n   :macros:"
+        if self.options.get("implementation", False) is None:
+            directive_rst += "\n   :implementation:"
+        return directive_rst

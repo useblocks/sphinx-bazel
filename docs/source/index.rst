@@ -10,7 +10,7 @@ Sphinx-Bazel: rules inside sphinx
 =================================
 
 ``Sphinx-Bazel`` is an extension for the `Sphinx documentation generator <hhtps://sphinx-doc.org>`_ and allows the
-**manual** and **automated** documentation of following `Bazel <https://bazel.build>`_ objects inside any Sphinx project:
+**manual** or **automated** documentation of following `Bazel <https://bazel.build>`_ objects inside any Sphinx project:
 
 
 
@@ -36,10 +36,10 @@ Sphinx-Bazel: rules inside sphinx
      - :ref:`autobazel_rule`
    * - |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| ├ Macro
      - :ref:`domain_macro`
-     -
+     - :ref:`autobazel_macro`
    * - |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| └ Implementation
      - :ref:`domain_implementation`
-     -
+     - :ref:`autobazel_implementation`
 
 ``Sphinx-Bazel`` supports and renders rst-syntax
 (`reStructuredText <http://docutils.sourceforge.net/docs/user/rst/quickref.html>`_) in
@@ -74,7 +74,7 @@ Manual documentation
 
       Stores *files* and everything else.
 
-   .. bazel:target:: //main
+   .. bazel:package:: //main
       :workspace:
 
       Stores some code
@@ -91,7 +91,7 @@ Manual documentation
 
    Stores *files* and everything else.
 
-.. bazel:target:: //main
+.. bazel:package:: //main
    :workspace:
 
    Stores some code.

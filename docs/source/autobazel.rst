@@ -77,6 +77,44 @@ Is only used, if ``:packages:`` and ``:targets:`` are provided as well!
    :targets:
    :rules:
 
+macros
+~~~~~~
+
+If ``:macros:`` is set, all found macros inside targets with extension ``.bzl`` files will be printed ::
+
+    .. autobazel-workspace:: ./bazel_example
+       :packages:
+       :targets:
+       :macros:
+
+Is only used, if ``:packages:`` and ``:targets:`` are provided as well!
+
+**Result**
+
+.. autobazel-workspace:: ./bazel_example
+   :packages:
+   :targets:
+   :macros:
+
+implementations
+~~~~~~~~~~~~~~~
+
+If ``:implementations:`` is set, all found implementations inside targets with extension ``.bzl`` files will be printed ::
+
+    .. autobazel-workspace:: ./bazel_example
+       :packages:
+       :targets:
+       :implementations:
+
+Is only used, if ``:packages:`` and ``:targets:`` are provided as well!
+
+**Result**
+
+.. autobazel-workspace:: ./bazel_example
+   :packages:
+   :targets:
+   :implementations:
+
 hide
 ~~~~
 If ``:hide:`` is set, information about the workspace itself will not be printed. But packages and co, if requested::
@@ -304,6 +342,20 @@ If ``implementation`` is given, the name of the implementation function of found
 
 ``:implementation:`` is only used if also ``:rules`` is set to document the containing rules of target.
 
+hide
+~~~~
+If ``:hide:`` is set, information about the target itself will not be printed. But rules and co, if requested::
+
+   .. autobazel-target:: //main:hello-world.bzl
+       :hide:
+       :rules:
+
+**Result**
+
+.. autobazel-target:: //main:hello-world.bzl
+    :hide:
+    :rules:
+
 workspace
 ~~~~~~~~~
 
@@ -389,6 +441,95 @@ If ``:workspace_path`` is given, the workspace path will get added to rule::
 .. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
    :workspace_path:
 
+.. _autobazel_macro:
+
+autobazel-macro
+---------------
+
+Documents a single Bazel macro::
+
+   .. autobazel-macro:: //main:hello-world.bzl:custom_macro
+
+
+**Result**
+
+.. autobazel-macro:: //main:hello-world.bzl:custom_macro
+
+Like in :ref:`autobazel_package` please make sure that a workspace got defined.
+
+``autobazel-macro`` uses the docstring of the function/macro as macro description.
+
+workspace
+~~~~~~~~~
+
+If ``:workspace`` is given, the workspace name will get added to macro::
+
+   .. autobazel-macro:: //main:hello-world.bzl:custom_macro
+      :workspace:
+
+**Result**
+
+.. autobazel-macro:: //main:hello-world.bzl:custom_macro
+   :workspace:
+
+workspace_path
+~~~~~~~~~~~~~~
+
+If ``:workspace_path`` is given, the workspace path will get added to macro::
+
+   .. autobazel-macro:: //main:hello-world.bzl:custom_macro
+      :workspace_path:
+
+**Result**
+
+.. autobazel-macro:: //main:hello-world.bzl:custom_macro
+   :workspace_path:
+
+.. _autobazel_implementation:
+
+autobazel-implementation
+------------------------
+
+Documents a Bazel implementation of a rule::
+
+   .. autobazel-implementation:: //main:hello-world.bzl:__impl_custom_build_rule
+
+
+**Result**
+
+.. autobazel-implementation:: //main:hello-world.bzl:__impl_custom_build_rule
+
+Like in :ref:`autobazel_package` please make sure that a workspace got defined.
+
+``autobazel-implementation`` uses the docstring of the implementation as implementation description.
+
+workspace
+~~~~~~~~~
+
+If ``:workspace`` is given, the workspace name will get added to implementation::
+
+   .. autobazel-implementation:: //main:hello-world.bzl:__impl_custom_build_rule
+      :workspace:
+
+**Result**
+
+.. autobazel-implementation:: //main:hello-world.bzl:__impl_custom_build_rule
+   :workspace:
+
+workspace_path
+~~~~~~~~~~~~~~
+
+If ``:workspace_path`` is given, the workspace path will get added to implementation::
+
+   .. autobazel-implementation:: //main:hello-world.bzl:__impl_custom_build_rule
+      :workspace_path:
+
+**Result**
+
+.. autobazel-implementation:: //main:hello-world.bzl:__impl_custom_build_rule
+   :workspace_path:
+
+
 .. _project_example:
 
 Example project structure
@@ -435,3 +576,27 @@ main/hello-world.bzl content
 
 .. literalinclude:: ./bazel_example/main/hello-world.bzl
    :language: text
+
+Complete documentation
+~~~~~~~~~~~~~~~~~~~~~~
+
+The following documentation of the complete Bazel Workspace uses every available option::
+
+    .. autobazel-workspace:: ./bazel_example
+       :packages:               // from here content options
+       :targets:
+       :rules:
+       :macros:
+       :implementations:
+       :workspace:              // from here layout options only
+       :implementation:
+       :workspace_path:
+
+.. autobazel-workspace:: ./bazel_example
+   :packages:
+   :targets:
+   :rules:
+   :macros:
+   :implementations:
+   :workspace:
+   :workspace_path:
