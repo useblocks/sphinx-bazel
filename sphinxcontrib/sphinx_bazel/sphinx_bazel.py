@@ -23,6 +23,9 @@ def setup(app):
     app.add_directive('autobazel-workspace', AutobazelCommonDirective)
     app.add_directive('autobazel-package', AutobazelCommonDirective)
     app.add_directive('autobazel-target', AutobazelCommonDirective)
+    app.add_directive('autobazel-rule', AutobazelCommonDirective)
+    app.add_directive('autobazel-macro', AutobazelCommonDirective)
+    app.add_directive('autobazel-implementation', AutobazelCommonDirective)
 
     return {'version': VERSION}  # identifies the version of our extension
 

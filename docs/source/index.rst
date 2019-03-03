@@ -6,29 +6,40 @@
 Sphinx-Bazel: rules inside sphinx
 =================================
 
-``Sphinx-Bazel`` is an extension for the `sphinx documentation generator <hhtps://sphinx-doc.org>`_ and allows the
-documentation of following `Bazel <https://bazel.build>`_ objects inside any sphinx project:
+``Sphinx-Bazel`` is an extension for the `Sphinx documentation generator <hhtps://sphinx-doc.org>`_ and allows the
+**manual** and **automated** documentation of following `Bazel <https://bazel.build>`_ objects inside any Sphinx project:
 
-* Workspace
-* Package
-* Target
+.. list-table::
+   :widths: 30 35 35
+   :header-rows: 1
+   :stub-columns: 1
 
-``Sphinx-Bazel`` provides a Bazel domain to Sphinx, which allows the manual documentation of Bazel objects:
-
-* :ref:`domain_workspace`
-* :ref:`domain_package`
-* :ref:`domain_target`
-
-For automated documentation of existing Bazel workspaces ``Sphinx-Bazel`` provides the following directives:
-
-* :ref:`autobazel_workspace`
-* :ref:`autobazel_package`
-* :ref:`autobazel_target`
+   * - Bazel object
+     - Manual documentation
+     - Automated documentation
+   * - Workspace
+     - :ref:`domain_workspace`
+     - :ref:`autobazel_workspace`
+   * - Package
+     - :ref:`domain_package`
+     - :ref:`autobazel_package`
+   * - Target
+     - :ref:`domain_target`
+     - :ref:`autobazel_target`
+   * - Rule
+     - :ref:`domain_rule`
+     - :ref:`autobazel_rule`
+   * - Macro
+     - :ref:`domain_macro`
+     -
+   * - Implementation
+     - :ref:`domain_implementation`
+     -
 
 ``Sphinx-Bazel`` supports and renders rst-syntax
 (`reStructuredText <http://docutils.sourceforge.net/docs/user/rst/quickref.html>`_) in
 `Docstrings <https://www.python.org/dev/peps/pep-0257/>`_ of the files ``WORKSPACE``, ``BUILD`` and any
-target with file-extension ``.py`` or ``.bzl``.
+target with file-extension ``.py`` or ``.bzl``. It also parses the ``doc`` attribute from rule-definitions.
 
 
 Automated documentation
@@ -92,7 +103,7 @@ See :ref:`bazel_domain` for the complete documentation.
 Motivation
 ----------
 
-This sphinx extension is based on the needs of a software development team inside a german automotive company.
+This Sphinx extension is based on the needs of a software development team inside a german automotive company.
 
 The project team was searching a small and practical way to add project-specific information
 (like requirements, test-cases, user manuals) to Bazel objects and accumulate this information inside a single

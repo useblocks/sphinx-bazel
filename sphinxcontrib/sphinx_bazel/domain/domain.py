@@ -73,12 +73,19 @@ class BazelDomain(Domain):
     object_types = {
         'workspace': ObjType(l_('workspace'), 'workspace', 'ref'),
         'package': ObjType(l_('package'), 'package', 'ref'),
-        'target': ObjType(l_('target'), 'target', 'ref')
+        'target': ObjType(l_('target'), 'target', 'ref'),
+        'rule': ObjType(l_('rule'), 'rule', 'ref'),
+        'macro': ObjType(l_('macro'), 'macro', 'ref'),
+        'impl': ObjType(l_('impl'), 'impl', 'ref')
     }
     directives = {
         'workspace': BazelWorkspace,
         'package': BazelObject,
         'target': BazelObject,
+        'rule': BazelObject,
+        'macro': BazelObject,
+        'implementation': BazelObject,
+        'impl': BazelObject,
     }
     roles = {}
     initial_data = {

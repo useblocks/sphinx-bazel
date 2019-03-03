@@ -3,7 +3,7 @@
 Autobazel
 =========
 
-Autobazel-directives allow the automatic documentation of Bazel workspaces, packages and targets.
+Autobazel-directives allow the automatic documentation of Bazel workspaces, packages, targets and rules.
 
 All showed examples are based on the same Bazel example workspace, which structure and content is explained at
 the end of this page: :ref:`project_example`.
@@ -58,6 +58,25 @@ Is only used, if ``:packages:`` is provided as well!
    :packages:
    :targets:
 
+rules
+~~~~~
+
+If ``:rules:`` is set, all found rules inside targets with extension ``.bzl`` files will be printed ::
+
+    .. autobazel-workspace:: ./bazel_example
+       :packages:
+       :targets:
+       :rules:
+
+Is only used, if ``:packages:`` and ``:targets:`` are provided as well!
+
+**Result**
+
+.. autobazel-workspace:: ./bazel_example
+   :packages:
+   :targets:
+   :rules:
+
 hide
 ~~~~
 If ``:hide:`` is set, information about the workspace itself will not be printed. But packages and co, if requested::
@@ -71,6 +90,26 @@ If ``:hide:`` is set, information about the workspace itself will not be printed
 .. autobazel-workspace:: ./bazel_example
     :hide:
     :packages:
+
+implementation
+~~~~~~~~~~~~~~
+If ``implementation`` is given, the name of the implementation function of found rules gets printed::
+
+    .. autobazel-workspace:: ./bazel_example
+       :packages:
+       :targets:
+       :rules:
+       :implementation:
+
+**Result**
+
+.. autobazel-workspace:: ./bazel_example
+   :packages:
+   :targets:
+   :rules:
+   :implementation:
+
+``:implementation:`` is only used if also ``:rules``, ``:targets:`` and ``:packages`` are set.
 
 workspace
 ~~~~~~~~~
@@ -135,6 +174,24 @@ If ``:targets:`` is set, all found Bazel targets inside given package will be pr
 .. autobazel-package:: //main
    :targets:
 
+rules
+~~~~~
+
+If ``:rules:`` is set, all found rules inside targets with extension ``.bzl`` files will be printed ::
+
+    .. autobazel-package:: //main
+       :targets:
+       :rules:
+
+Is only used, if ``:targets:`` is provided as well!
+
+**Result**
+
+.. autobazel-package:: //main
+   :targets:
+   :rules:
+
+
 hide
 ~~~~
 If ``:hide:`` is set, information about the package itself will not be printed. But targets, if requested::
@@ -148,6 +205,24 @@ If ``:hide:`` is set, information about the package itself will not be printed. 
 .. autobazel-package:: //main
    :hide:
    :targets:
+
+implementation
+~~~~~~~~~~~~~~
+If ``implementation`` is given, the name of the implementation function of found rules gets printed::
+
+    .. autobazel-package:: //main
+       :targets:
+       :rules:
+       :implementation:
+
+**Result**
+
+.. autobazel-package:: //main
+   :targets:
+   :rules:
+   :implementation:
+
+``:implementation:`` is only used if also ``:rules`` and ``:targets:`` are set.
 
 workspace
 ~~~~~~~~~
@@ -198,6 +273,36 @@ Like in :ref:`autobazel_package` please make sure that a workspace got defined.
 ``autobazel-target`` searches for docstrings in files with extension ``.py`` or ``.bzl`` and use this as
 target-description. Other file-extension are not supported, as they normally do not follow the Python syntax.
 
+rules
+~~~~~
+
+If ``:rules:`` is set, all found rules inside given target  will be printed::
+
+    .. autobazel-target:: //main:hello-world.bzl
+       :rules:
+
+``Sphinx-Bazel`` checks only targets with ``.bzl`` as file extension for rules.
+
+**Result**
+
+.. autobazel-target:: //main:hello-world.bzl
+   :rules:
+
+implementation
+~~~~~~~~~~~~~~
+If ``implementation`` is given, the name of the implementation function of found rules gets printed::
+
+    .. autobazel-target:: //main:hello-world.bzl
+       :rules:
+       :implementation:
+
+**Result**
+
+.. autobazel-target:: //main:hello-world.bzl
+   :rules:
+   :implementation:
+
+``:implementation:`` is only used if also ``:rules`` is set to document the containing rules of target.
 
 workspace
 ~~~~~~~~~
@@ -226,6 +331,63 @@ If ``:workspace_path`` is given, the workspace path will get added to target::
    :workspace_path:
 
 
+.. _autobazel_rule:
+
+autobazel-rule
+--------------
+
+Documents a single Bazel rule::
+
+   .. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+
+
+**Result**
+
+.. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+
+Like in :ref:`autobazel_package` please make sure that a workspace got defined.
+
+``autobazel-rule`` searches for docstrings in the doc-attribute of a rule defined in files with
+extension ``.bzl``. This is then used as rule description.
+
+implementation
+~~~~~~~~~~~~~~
+If ``implementation`` is given, the name of the function which is used in the **implementation** attribute
+of the rule definition is printed out::
+
+    .. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+       :implementation:
+
+**Result**
+
+.. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+   :implementation:
+
+workspace
+~~~~~~~~~
+
+If ``:workspace`` is given, the workspace name will get added to rule::
+
+   .. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+      :workspace:
+
+**Result**
+
+.. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+   :workspace:
+
+workspace_path
+~~~~~~~~~~~~~~
+
+If ``:workspace_path`` is given, the workspace path will get added to rule::
+
+   .. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+      :workspace_path:
+
+**Result**
+
+.. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+   :workspace_path:
 
 .. _project_example:
 
@@ -266,4 +428,10 @@ main/BUILD content
 ~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ./bazel_example/main/BUILD
+   :language: text
+
+main/hello-world.bzl content
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. literalinclude:: ./bazel_example/main/hello-world.bzl
    :language: text

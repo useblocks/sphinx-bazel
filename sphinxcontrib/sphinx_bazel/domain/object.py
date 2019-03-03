@@ -16,11 +16,11 @@ else:
     import logging
 logger = logging.getLogger(__name__)
 
-
 # REs for Bazel signatures
 bzl_sig_re = re.compile(
     r'''^  \/\/([\w\/]*)     # package name
-           (:([\w\/.-]*))?       # target name
+           (:([\w\/.-]*))?   # target name
+           (:([\w\/.-]*))?   # rule, macro or impl name (named later internally as internal)
            $                 # and nothing more
           ''', re.VERBOSE)
 
@@ -30,10 +30,9 @@ class BazelObject(ObjectDescription):
     Description of a general bazel object
     """
     option_spec = {
-        'noindex': directives.flag,
         'workspace': directives.flag,
         'workspace_path': directives.flag,
-        'annotation': directives.unchanged,
+        'implementation': directives.unchanged,  # Used by bazel:rule to print implementation function
     }
 
     def get_signature_prefix(self, sig):
@@ -62,7 +61,7 @@ class BazelObject(ObjectDescription):
         if m is None:
             logger.error("Sphinx-Bazel: Parse problems with signature: {}".format(sig))
             raise ValueError
-        package, after_package, target, = m.groups()
+        package, after_package, target, after_target, internal = m.groups()
 
         try:
             signode['workspace'] = self.env.ref_context['bazel:workspace']
@@ -75,6 +74,8 @@ class BazelObject(ObjectDescription):
         sig_text = '//{}'.format(package)
         if target:
             sig_text += ':{}'.format(target)
+        if internal:
+            sig_text += ':{}'.format(internal)
         signode += addnodes.desc_name(sig_text, sig_text)
         
         if self.options.get('workspace', False) is None:  # if flag is set, value is None
@@ -87,6 +88,11 @@ class BazelObject(ObjectDescription):
             ws_path = ws_obj[1]  # See workspace.py for details about stored data
             ws_path_string = 'workspace path: {}'.format(ws_path)
             self._add_signature_detail(signode, ws_path_string)
+
+        rule_impl = self.options.get('implementation', "")
+        if rule_impl:  # if flag is set, value is None
+            impl_string = 'implementation: {}'.format(rule_impl)
+            self._add_signature_detail(signode, impl_string)
         
         return sig, sig
 

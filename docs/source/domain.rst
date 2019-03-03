@@ -9,6 +9,10 @@ Therefore it provides the following directives:
 
    * bazel:workspace
    * bazel:package
+   * bazel:target
+   * bazel:rule
+   * bazel:macro
+   * bazel:implementation
 
 The content part of each directive supports fully RsT, so you are free to add lists, images or functions from
 other Sphinx extensions.
@@ -223,3 +227,140 @@ workspace_path
    :workspace_path:
 
    Some input
+
+.. _domain_rule:
+
+bazel:rule
+----------
+
+To describe a Bazel rule use ``bazel:rule``::
+
+   .. bazel:rule:: //my/package:file.bzl:my_rule
+
+      This is **my_rule**
+
+**Result**
+
+.. bazel:rule:: //my/package:file.bzl:my_rule
+
+   This is **my_rule**
+
+It gets automatically assigned to latest defined workspace.
+
+implementation
+~~~~~~~~~~~~~~
+
+``:implementation:`` can be used to print the name of the used implementation function for the rule::
+
+   .. bazel:workspace:: workspace_rule_impl_example
+
+      Workspace for testing ``implementation`` option
+
+   .. bazel:rule:: //my/package:target:rule
+      :implementation: __my_rule_func
+
+      Some input
+
+**Result**
+
+.. bazel:workspace:: workspace_rule_impl_example
+  :path: /path/to/my/workspace
+
+  Workspace for testing ``implementation`` option
+
+.. bazel:rule:: //my/package:target:rule
+  :implementation: __my_rule_func
+
+  Some input
+
+workspace
+~~~~~~~~~
+
+``:workspace:`` can be used to print also the name of related workspace::
+
+   .. bazel:workspace:: workspace_rule_example
+
+      Workspace for testing ``workspace`` option
+
+   .. bazel:rule:: //my/package:target:rule
+      :workspace:
+
+      Some input
+
+**Result**
+
+.. bazel:workspace:: workspace_rule_example
+
+   Workspace for testing ``workspace`` option
+
+.. bazel:rule:: //my/package:target:rule
+   :workspace:
+
+   Some input
+
+
+workspace_path
+~~~~~~~~~~~~~~
+
+``:workspace_path:`` can be used to get the path of the used workspace printed::
+
+   .. bazel:workspace:: workspace_ule_path_example
+      :path: /path/to/my/workspace
+
+      Workspace for testing ``workspace_path`` option
+
+   .. bazel:rule:: //my/package:target:rule
+      :workspace_path:
+
+      Some input
+
+**Result**
+
+.. bazel:workspace:: workspace_rule_path_example
+   :path: /path/to/my/workspace
+
+   Workspace for testing ``workspace_path`` option
+
+.. bazel:rule:: //my/package:target:rule
+   :workspace_path:
+
+   Some input
+
+.. _domain_macro:
+
+bazel:macro
+-----------
+
+To describe a Bazel macro use ``bazel:macro``::
+
+   .. bazel:macro:: //my/package:file.bzl:my_macro
+
+      This is a **macro**
+
+**Result**
+
+.. bazel:macro:: //my/package:file.bzl:my_macro
+
+   This is a **macro**
+
+It gets automatically assigned to latest defined workspace.
+
+.. _domain_implementation:
+
+bazel:implementation
+--------------------
+**Shortcut**: ``bazel:impl``
+
+To describe a Bazel implementation use ``bazel:implementation``::
+
+   .. bazel:implementation:: //my/package:file.bzl:_my_impl
+
+      You can also use ``bazel:impl`` to define this.
+
+**Result**
+
+.. bazel:implementation:: //my/package:file.bzl:_my_impl
+
+   You can also use ``bazel:impl`` to define this.
+
+It gets automatically assigned to latest defined workspace.
