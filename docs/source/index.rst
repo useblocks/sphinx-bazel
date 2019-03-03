@@ -3,11 +3,16 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. |nbsp| unicode:: 0xA0
+   :trim:
+
 Sphinx-Bazel: rules inside sphinx
 =================================
 
 ``Sphinx-Bazel`` is an extension for the `Sphinx documentation generator <hhtps://sphinx-doc.org>`_ and allows the
 **manual** and **automated** documentation of following `Bazel <https://bazel.build>`_ objects inside any Sphinx project:
+
+
 
 .. list-table::
    :widths: 30 35 35
@@ -20,19 +25,19 @@ Sphinx-Bazel: rules inside sphinx
    * - Workspace
      - :ref:`domain_workspace`
      - :ref:`autobazel_workspace`
-   * - Package
+   * - └ Package
      - :ref:`domain_package`
      - :ref:`autobazel_package`
-   * - Target
+   * - |nbsp| |nbsp| |nbsp| └ Target
      - :ref:`domain_target`
      - :ref:`autobazel_target`
-   * - Rule
+   * - |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| ├ Rule
      - :ref:`domain_rule`
      - :ref:`autobazel_rule`
-   * - Macro
+   * - |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| ├ Macro
      - :ref:`domain_macro`
      -
-   * - Implementation
+   * - |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| └ Implementation
      - :ref:`domain_implementation`
      -
 
@@ -72,7 +77,7 @@ Manual documentation
    .. bazel:target:: //main
       :workspace:
 
-      Stores some _code_
+      Stores some code
 
    .. bazel:target:: //main:build
       :workspace_path:
