@@ -127,6 +127,7 @@ Contents
 .. toctree::
    :maxdepth: 3
 
+   quickstart
    domain
    autobazel
 
