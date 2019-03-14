@@ -37,7 +37,7 @@ Sphinx-Bazel: rules inside sphinx
    * - |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| ├ Macro
      - :ref:`domain_macro`
      - :ref:`autobazel_macro`
-   * - |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| └ Implementation
+   * - |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| |nbsp| └ Impl.
      - :ref:`domain_implementation`
      - :ref:`autobazel_implementation`
 
