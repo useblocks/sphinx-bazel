@@ -100,6 +100,7 @@ class AutobazelCommonDirective(Directive):
             self.log.error("Given workspace path contains no WORKSPACE file.")
             return []
 
+        workspace_name = ""
         with open(workspace_file_path) as f:
             tree = ast.parse(f.read(), workspace_file_path)
             workfile_docstring = ast.get_docstring(tree)
@@ -111,7 +112,7 @@ class AutobazelCommonDirective(Directive):
                                 workspace_name = keyword.value.s
                                 break
             except KeyError:
-                workspace_name = ""
+                pass
 
             if not workspace_name:
                 workspace_name = os.path.basename(os.path.normpath(workspace_path))

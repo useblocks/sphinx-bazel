@@ -130,6 +130,7 @@ Contents
    quickstart
    domain
    autobazel
+   changelog
 
 
 
