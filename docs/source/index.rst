@@ -44,7 +44,7 @@ Sphinx-Bazel: rules inside sphinx
 ``Sphinx-Bazel`` supports and renders rst-syntax
 (`reStructuredText <http://docutils.sourceforge.net/docs/user/rst/quickref.html>`_) in
 `Docstrings <https://www.python.org/dev/peps/pep-0257/>`_ of the files ``WORKSPACE``, ``BUILD`` and any
-target with file-extension ``.py`` or ``.bzl``. It also parses the ``doc`` attribute from rule-definitions.
+target with file-extension ``.bzl``. It also parses the ``doc`` attribute from rule-definitions.
 
 
 Automated documentation
