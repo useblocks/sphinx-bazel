@@ -229,7 +229,7 @@ class AutobazelCommonDirective(Directive):
             return []
 
         file_path, file_extension = os.path.splitext(target_path)
-        if file_extension in ['.py', '.bzl']:  # Only check for docstring, if we are sure AST can handle it.
+        if file_extension in ['.bzl']:  # Only check for docstring, if we are sure AST can handle it.
             with open(target_path) as f:
                 try:
                     tree = ast.parse(f.read(), target_path)
