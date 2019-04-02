@@ -89,7 +89,6 @@ class AutobazelCommonDirective(Directive):
         elif 'macro' in self.name or 'implementation' in self.name:
             return self._handle_macro_implementation()
 
-
         return []
 
     def _handle_workspace(self):
@@ -165,7 +164,9 @@ class AutobazelCommonDirective(Directive):
         package_path = os.path.join(self.workspace_path_abs, package.replace('//', ''))
         package_build_file = os.path.join(package_path, 'BUILD')
         if not os.path.exists(package_build_file):
-            self.log.error("No BUILD file detected for calculated package path: {}".format(package_path))
+            self.log.error("No BUILD file detected for calculated package path: {} in file {}."
+                           "Used workspace {} in {}".format(package, self.state.document.current_source,
+                                                            self.workspace_name, self.workspace_path_abs))
             return []
 
         with open(package_build_file) as f:
@@ -262,8 +263,8 @@ class AutobazelCommonDirective(Directive):
 
         # Add rule, macro, implementation information
         if (self.options.get('rules', False) is None
-                or self.options.get('macros', False) is None
-                or self.options.get('implementations', False) is None) \
+            or self.options.get('macros', False) is None
+            or self.options.get('implementations', False) is None) \
                 and file_extension in ['.bzl']:
             # Check for rules, macros and implementations
             with open(target_path) as f:
@@ -275,8 +276,8 @@ class AutobazelCommonDirective(Directive):
                     for element in tree.body:
                         # Check if we have something like rule_name = rule(...)
                         # where left part is the target and right part is the value
-                        if isinstance(element, ast.Assign)\
-                                and isinstance(element.value, ast.Call)\
+                        if isinstance(element, ast.Assign) \
+                                and isinstance(element.value, ast.Call) \
                                 and element.value.func.id == 'rule':
                             rule_names.append(element.targets[0].id)
                         elif isinstance(element, ast.FunctionDef):
