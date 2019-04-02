@@ -9,7 +9,7 @@
 Sphinx-Bazel: rules inside sphinx
 =================================
 
-``Sphinx-Bazel`` is an extension for the `Sphinx documentation generator <https://sphinx-doc.org>`_ and allows the
+``Sphinx-Bazel`` is an extension for the `Sphinx documentation generator <http://sphinx-doc.org>`_ and allows the
 **manual** or **automated** documentation of following `Bazel <https://bazel.build>`_ objects inside any Sphinx project:
 
 
