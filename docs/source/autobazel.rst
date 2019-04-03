@@ -18,7 +18,7 @@ autobazel-workspace
 
 Documents a whole Bazel workspace::
 
-   .. autobazel-workspace: ./bazel_example
+   .. autobazel-workspace:: ./bazel_example
 
 **Result**
 
