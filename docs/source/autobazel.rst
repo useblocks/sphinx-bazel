@@ -137,12 +137,19 @@ However, some are not. So here is an overview about which autobazel directive su
      - macro
      - impl.
    * - :ref:`option_path`
+     - ⛔
      - 👍
      - 👍
      - 👍
      - 👍
      - 👍
+   * - :ref:`option_name`
      - 👍
+     - ⛔
+     - ⛔
+     - ⛔
+     - ⛔
+     - ⛔
    * - :ref:`option_packages`
      - 👍
      - ⛔
@@ -221,7 +228,7 @@ path
      - rule
      - macro
      - impl.
-   * - 👍
+   * - ⛔
      - 👍
      - 👍
      - 👍
@@ -253,6 +260,51 @@ These directives will create a workspace internally and all following directives
 However, there may be use cases where a workspace does not exist (e.g. single .bzl. files in a git submodule).
 In this cases this option can help.
 
+.. _option_name:
+
+name
+~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - workspace
+     - package
+     - target
+     - rule
+     - macro
+     - impl.
+   * - 👍
+     - ⛔
+     - ⛔
+     - ⛔
+     - ⛔
+     - ⛔
+
+``:name:`` can be used to define a specific name of a workspace.
+
+Normally the name gets read from the ``WORKSPACE`` file. If no name is defined or there are reasons to
+document workspaces with similar names, use ``:name``::
+
+    .. autobazel-workspace:: ./bazel_example/
+       :name: my custom workspace name
+       :show_workspace_path:
+       :show_workspace:
+
+**Result**
+
+.. autobazel-workspace:: ./bazel_example/
+   :name: my custom workspace name
+   :show_workspace_path:
+   :show_workspace:
+
+.. note::
+
+   This documentation uses the same workspace ``bazel_example`` several times on the same page.
+   To avoid warnings like ``WARNING: Duplicate ID: "workspace-hello_world_workspace"``, we use ``:name:`` to import
+   the same workspace multiple times under different names.
+
+
 .. _option_packages:
 
 packages
@@ -282,6 +334,7 @@ If ``:packages:`` is set, all found Bazel packages inside workspace will be prin
 **Result**
 
 .. autobazel-workspace:: ./bazel_example
+   :name: ws_package_example
    :packages:
 
 .. _option_targets:
@@ -451,6 +504,7 @@ If ``:hide:`` is set, information about the workspace itself will not be printed
 **Result**
 
 .. autobazel-workspace:: ./bazel_example
+    :name: ws_hide_example
     :hide:
     :packages:
 
@@ -474,6 +528,7 @@ show_implementation
      - 👍
      - 👍
      - 👍
+
 If ``show_implementation`` is given, the name of the implementation function of found rules gets printed::
 
     .. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
@@ -516,6 +571,7 @@ If ``:show_workspace`` is given, the workspace name will get added::
 **Result**
 
 .. autobazel-workspace:: ./bazel_example
+   :name: ws_show_workspace_example
    :show_workspace:
    :packages:
 
@@ -539,6 +595,7 @@ show_workspace_path
      - 👍
      - 👍
      - 👍
+
 If ``:workspace_path`` is given, the workspace path will get added packages and targets::
 
    .. autobazel-workspace:: ./bazel_example
@@ -548,6 +605,7 @@ If ``:workspace_path`` is given, the workspace path will get added packages and 
 **Result**
 
 .. autobazel-workspace:: ./bazel_example
+   :name: ws_show_workspace_path_example
    :show_workspace_path:
    :packages:
 
@@ -605,6 +663,7 @@ Complete documentation
 The following documentation of the complete Bazel Workspace uses nearly every available option::
 
     .. autobazel-workspace:: ./bazel_example
+       :name: ws_full_example
        :packages:               // from here content options
        :targets:
        :rules:
@@ -617,6 +676,7 @@ The following documentation of the complete Bazel Workspace uses nearly every av
 **Result**
 
 .. autobazel-workspace:: ./bazel_example
+   :name: ws_full_example
    :packages:
    :targets:
    :rules:

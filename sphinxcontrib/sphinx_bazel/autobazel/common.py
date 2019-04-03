@@ -30,6 +30,7 @@ class AutobazelCommonDirective(Directive):
         'macros': directives.flag,  # Shall macros inside bzl-files be printed?
         'implementations': directives.flag,  # Shall implementations inside bzl-files be printed?
         'path': directives.unchanged,  # Used as temporary workspace path, if given.
+        'name': directives.unchanged,  # Used to manually set a name of a workspace
 
         'hide': directives.flag,  # Shall the root-object be printed (e.g. no workspace)
         'show_workspace': directives.flag,  # Prints workspace name to all documented elements
@@ -129,6 +130,11 @@ class AutobazelCommonDirective(Directive):
 
             if not workspace_name:
                 workspace_name = os.path.basename(os.path.normpath(workspace_path))
+
+        #  Set a specific workspace name, if given
+        if self.options.get('name', False):
+            workspace_name = self.options.get('name', '')
+
         if workfile_docstring is None:
             workfile_docstring = ""
 

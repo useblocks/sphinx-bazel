@@ -296,7 +296,7 @@ show_implementation
 
 **Result**
 
-.. bazel:workspace:: workspace_rule_impl_example
+.. bazel:workspace:: workspace_rule_show_impl_example
    :path: /path/to/my/workspace
 
    Workspace for testing ``implementation`` option
