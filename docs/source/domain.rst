@@ -103,17 +103,17 @@ To describe a Bazel package use ``bazel:package``::
       * macro X
       * file 1
 
-workspace
-~~~~~~~~~
+show_workspace
+~~~~~~~~~~~~~~
 
-``:workspace:`` can be used to print also the name of related workspace::
+``:show_workspace:`` can be used to print also the name of related workspace::
 
    .. bazel:workspace:: workspace_example
 
       Workspace for testing ``workspace`` option
 
    .. bazel:package:: //my/package
-      :workspace:
+      :show_workspace:
 
       Some input
 
@@ -124,15 +124,15 @@ workspace
    Workspace for testing ``workspace`` option
 
 .. bazel:package:: //my/package
-      :workspace:
+      :show_workspace:
 
       Some input
 
 
-workspace_path
-~~~~~~~~~~~~~~
+show_workspace_path
+~~~~~~~~~~~~~~~~~~~
 
-``:workspace_path:`` can be used to get the path of the used workspace printed::
+``:show_workspace_path:`` can be used to get the path of the used workspace printed::
 
    .. bazel:workspace:: workspace_path_example
       :path: /path/to/my/workspace
@@ -140,7 +140,7 @@ workspace_path
       Workspace for testing ``workspace_path`` option
 
    .. bazel:package:: //my/package
-      :workspace_path:
+      :show_workspace_path:
 
       Some input
 
@@ -152,7 +152,7 @@ workspace_path
    Workspace for testing ``workspace_path`` option
 
 .. bazel:package:: //my/package
-   :workspace_path:
+   :show_workspace_path:
 
    Some input
 
@@ -175,17 +175,17 @@ To describe a Bazel target use ``bazel:target``::
 
 It gets automatically assigned to latest defined workspace.
 
-workspace
-~~~~~~~~~
+show_workspace
+~~~~~~~~~~~~~~
 
-``:workspace:`` can be used to print also the name of related workspace::
+``:show_workspace:`` can be used to print also the name of related workspace::
 
    .. bazel:workspace:: workspace_target_example
 
       Workspace for testing ``workspace`` option
 
    .. bazel:target:: //my/package
-      :workspace:
+      :show_workspace:
 
       Some input
 
@@ -196,15 +196,15 @@ workspace
    Workspace for testing ``workspace`` option
 
 .. bazel:target:: //my/package:target
-      :workspace:
+      :show_workspace:
 
       Some input
 
 
-workspace_path
-~~~~~~~~~~~~~~
+show_workspace_path
+~~~~~~~~~~~~~~~~~~~
 
-``:workspace_path:`` can be used to get the path of the used workspace printed::
+``:show_workspace_path:`` can be used to get the path of the used workspace printed::
 
    .. bazel:workspace:: workspace_target_path_example
       :path: /path/to/my/workspace
@@ -212,7 +212,7 @@ workspace_path
       Workspace for testing ``workspace_path`` option
 
    .. bazel:target:: //my/package
-      :workspace_path:
+      :show_workspace_path:
 
       Some input
 
@@ -224,7 +224,7 @@ workspace_path
    Workspace for testing ``workspace_path`` option
 
 .. bazel:target:: //my/package:target
-   :workspace_path:
+   :show_workspace_path:
 
    Some input
 
@@ -250,7 +250,7 @@ It gets automatically assigned to latest defined workspace.
 implementation
 ~~~~~~~~~~~~~~
 
-``:implementation:`` can be used to print the name of the used implementation function for the rule::
+``:implementation:`` can be used to define the name of the used implementation function for the rule::
 
    .. bazel:workspace:: workspace_rule_impl_example
 
@@ -264,26 +264,60 @@ implementation
 **Result**
 
 .. bazel:workspace:: workspace_rule_impl_example
-  :path: /path/to/my/workspace
+   :path: /path/to/my/workspace
 
-  Workspace for testing ``implementation`` option
+   Workspace for testing ``implementation`` option
 
 .. bazel:rule:: //my/package:target:rule
-  :implementation: __my_rule_func
+   :implementation: __my_rule_func
 
-  Some input
+   Some input
 
-workspace
-~~~~~~~~~
+.. note::
 
-``:workspace:`` can be used to print also the name of related workspace::
+   You have to use :ref:`rule_show_implementation` to get the value also printed.
+
+.. _rule_show_implementation:
+
+show_implementation
+~~~~~~~~~~~~~~~~~~~
+
+``:show_implementation:`` can be used to print the name of the used implementation function for the rule::
+
+   .. bazel:workspace:: workspace_rule_impl_example
+
+      Workspace for testing ``implementation`` option
+
+   .. bazel:rule:: //my/package:target:rule
+      :implementation: __my_rule_func
+      :show_implementation:
+
+      Some input
+
+**Result**
+
+.. bazel:workspace:: workspace_rule_impl_example
+   :path: /path/to/my/workspace
+
+   Workspace for testing ``implementation`` option
+
+.. bazel:rule:: //my/package:target:rule
+   :implementation: __my_rule_func
+   :show_implementation:
+
+   Some input
+
+show_workspace
+~~~~~~~~~~~~~~
+
+``:show_workspace:`` can be used to print also the name of related workspace::
 
    .. bazel:workspace:: workspace_rule_example
 
       Workspace for testing ``workspace`` option
 
    .. bazel:rule:: //my/package:target:rule
-      :workspace:
+      :show_workspace:
 
       Some input
 
@@ -294,15 +328,15 @@ workspace
    Workspace for testing ``workspace`` option
 
 .. bazel:rule:: //my/package:target:rule
-   :workspace:
+   :show_workspace:
 
    Some input
 
 
-workspace_path
-~~~~~~~~~~~~~~
+show_workspace_path
+~~~~~~~~~~~~~~~~~~~
 
-``:workspace_path:`` can be used to get the path of the used workspace printed::
+``:show_workspace_path:`` can be used to get the path of the used workspace printed::
 
    .. bazel:workspace:: workspace_ule_path_example
       :path: /path/to/my/workspace
@@ -310,7 +344,7 @@ workspace_path
       Workspace for testing ``workspace_path`` option
 
    .. bazel:rule:: //my/package:target:rule
-      :workspace_path:
+      :show_workspace_path:
 
       Some input
 
@@ -322,7 +356,7 @@ workspace_path
    Workspace for testing ``workspace_path`` option
 
 .. bazel:rule:: //my/package:target:rule
-   :workspace_path:
+   :show_workspace_path:
 
    Some input
 

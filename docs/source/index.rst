@@ -92,12 +92,12 @@ Manual documentation
    Stores *files* and everything else.
 
 .. bazel:package:: //main
-   :workspace:
+   :show_workspace:
 
    Stores some code.
 
 .. bazel:target:: //main:build
-   :workspace_path:
+   :show_workspace_path:
 
    This **Bazel** target builds my sources.
 

@@ -29,17 +29,23 @@ class AutobazelCommonDirective(Directive):
         'rules': directives.flag,  # Shall rules inside bzl-files be printed?
         'macros': directives.flag,  # Shall macros inside bzl-files be printed?
         'implementations': directives.flag,  # Shall implementations inside bzl-files be printed?
+        'path': directives.unchanged,  # Used as temporary workspace path, if given.
 
         'hide': directives.flag,  # Shall the root-object be printed (e.g. no workspace)
-        'workspace': directives.flag,  # Prints workspace name to all documented elements
-        'workspace_path': directives.flag,  # Prints workspace_path name to all documented elements
-        'implementation': directives.flag,  # Prints the used function name for implementation of a rule
+        'show_workspace': directives.flag,  # Prints workspace name to all documented elements
+        'show_workspace_path': directives.flag,  # Prints workspace_path name to all documented elements
+        'show_implementation': directives.flag,  # Prints the used function name for implementation of a rule
     }
     final_argument_whitespace = True
 
     def __init__(self, *args, **kw):
         super(AutobazelCommonDirective, self).__init__(*args, **kw)
         self.log = logging.getLogger(__name__)
+
+        self.root_path = None
+        self.workspace_name = None
+        self.workspace_path = None
+        self.workspace_path_abs = None
 
     @property
     def env(self):
@@ -52,21 +58,29 @@ class AutobazelCommonDirective(Directive):
     def run(self):
 
         if 'workspace' not in self.name:
+            self.root_path = self.options.get('path', False)
+            if self.root_path:
+                self.workspace_path = self.root_path
+                self.workspace_name = os.path.basename(self.root_path)
+            else:
+                try:
+                    self.workspace_name = self.env.ref_context['bazel:workspace']
+                except KeyError:
+                    self.log.error("No workspace was defined before the {} definition of {}.\n "
+                                   "Please define one, which can than be used as reference for "
+                                   "calculating file paths.\n"
+                                   "Or use option :root-path: to document something without"
+                                   "a bazel workspace.".format(self.name, self.arguments[0]))
+                    return []
 
-            try:
-                self.workspace_name = self.env.ref_context['bazel:workspace']
-            except KeyError:
-                self.log.error("No workspace was defined before this package definition.\n "
-                               "Please define one, which can than be used as reference for "
-                               "calculating file paths.")
-                return []
-
-            try:
-                self.workspace_path = self.env.domaindata['bazel']['workspaces'][self.workspace_name][1]
-            except KeyError:
-                self.log.error("Could not find workspace_name in defined workspace. That's strange!")
-                return []
+                try:
+                    self.workspace_path = self.env.domaindata['bazel']['workspaces'][self.workspace_name][1]
+                except KeyError:
+                    self.log.error("Could not find workspace_name in defined workspace. That's strange!")
+                    return []
         else:
+            if self.options.get('path', False):
+                self.log.warning(':path: not supported by autobazel-workspace. Argument is used instead.')
             self.workspace_path = self.arguments[0]
 
         if not os.path.isabs(self.workspace_path):
@@ -139,10 +153,10 @@ class AutobazelCommonDirective(Directive):
 
                     workspace_rst += """
 .. autobazel-package:: {package}""".format(package=package)
-                    if self.options.get("workspace", False) is None:
-                        workspace_rst += "\n   :workspace:"
-                    if self.options.get("workspace_path", False) is None:
-                        workspace_rst += "\n   :workspace_path:"
+                    if self.options.get('show_workspace', False) is None:
+                        workspace_rst += "\n   :show_workspace:"
+                    if self.options.get('show_workspace_path', False) is None:
+                        workspace_rst += "\n   :show_workspace_path:"
                     if self.options.get("targets", False) is None:
                         workspace_rst += "\n   :targets:"
                     if self.options.get("rules", False) is None:
@@ -151,8 +165,10 @@ class AutobazelCommonDirective(Directive):
                         workspace_rst += "\n   :implementations:"
                     if self.options.get("macros", False) is None:
                         workspace_rst += "\n   :macros:"
-                    if self.options.get("implementation", False) is None:
-                        workspace_rst += "\n   :implementation:"
+                    if self.options.get("show_implementation", False) is None:
+                        workspace_rst += "\n   :show_implementation:"
+                    if self.options.get("path", False):
+                        workspace_rst += "\n   :path: {}".format(self.root_path)
 
         self.state_machine.insert_input(workspace_rst.split('\n'),
                                         self.state_machine.document.attributes['source'])
@@ -179,10 +195,12 @@ class AutobazelCommonDirective(Directive):
             package_rst = ""
         else:
             options_rst = ""
-            if self.options.get("workspace", False) is None:
-                options_rst += "   :workspace:\n"
-            if self.options.get("workspace_path", False) is None:
-                options_rst += "   :workspace_path:\n"
+            if self.options.get('show_workspace', False) is None:
+                options_rst += "   :show_workspace:\n"
+            if self.options.get('show_workspace_path', False) is None:
+                options_rst += "   :show_workspace_path:\n"
+            if self.options.get('path', False):
+                options_rst += "   :path: {}\n".format(self.workspace_path_abs)
 
             package_rst = """
 .. bazel:package:: {package}
@@ -203,18 +221,20 @@ class AutobazelCommonDirective(Directive):
                             target_path=os.path.join(root.replace(package_path, ''), package_file)
                         )
                         package_rst += "\n.. autobazel-target:: {target}".format(target=target_signature)
-                        if self.options.get("workspace", False) is None:
-                            package_rst += "\n   :workspace:"
-                        if self.options.get("workspace_path", False) is None:
-                            package_rst += "\n   :workspace_path:"
+                        if self.options.get('show_workspace', False) is None:
+                            package_rst += "\n   :show_workspace:"
+                        if self.options.get('show_workspace_path', False) is None:
+                            package_rst += "\n   :show_workspace_path:"
                         if self.options.get("rules", False) is None:
                             package_rst += "\n   :rules:"
                         if self.options.get("implementations", False) is None:
                             package_rst += "\n   :implementations:"
                         if self.options.get("macros", False) is None:
                             package_rst += "\n   :macros:"
-                        if self.options.get("implementation", False) is None:
-                            package_rst += "\n   :implementation:"
+                        if self.options.get("show_implementation", False) is None:
+                            package_rst += "\n   :show_implementation:"
+                        if self.options.get("path", False):
+                            package_rst += "\n   :path: {}".format(self.root_path)
 
         self.state_machine.insert_input(package_rst.split('\n'),
                                         self.state_machine.document.attributes['source'])
@@ -248,10 +268,12 @@ class AutobazelCommonDirective(Directive):
         if self.options.get('hide', False) is None:  # If hide is set, no target output
             target_rst = ""
         else:
-            if self.options.get("workspace", False) is None:
-                options_rst += "   :workspace:\n"
-            if self.options.get("workspace_path", False) is None:
-                options_rst += "   :workspace_path:\n"
+            if self.options.get('show_workspace', False) is None:
+                options_rst += "   :show_workspace:\n"
+            if self.options.get('show_workspace_path', False) is None:
+                options_rst += "   :show_workspace_path:\n"
+            if self.options.get('path', False):
+                options_rst += "   :path: {}\n".format(self.workspace_path_abs)
 
             target_rst = """
 .. bazel:target:: {target}
@@ -357,12 +379,15 @@ class AutobazelCommonDirective(Directive):
             rule_doc = ""
 
         options_rst = ""
-        if self.options.get("workspace", False) is None:
-            options_rst += "   :workspace:\n"
-        if self.options.get("workspace_path", False) is None:
-            options_rst += "   :workspace_path:\n"
-        if self.options.get("implementation", False) is None:
-            options_rst += "   :implementation: {impl}\n".format(impl=rule_impl)
+        options_rst += "   :implementation: {impl}\n".format(impl=rule_impl)
+        if self.options.get('show_workspace', False) is None:
+            options_rst += "   :show_workspace:\n"
+        if self.options.get('show_workspace_path', False) is None:
+            options_rst += "   :show_workspace_path:\n"
+        if self.options.get("show_implementation", False) is None:
+            options_rst += "   :show_implementation: \n"
+        if self.options.get('path', False):
+            options_rst += "   :path: {}\n".format(self.workspace_path_abs)
 
         rule_rst = """
 .. bazel:rule:: {rule}
@@ -411,10 +436,12 @@ class AutobazelCommonDirective(Directive):
             macro_doc = ""
 
         options_rst = ""
-        if self.options.get("workspace", False) is None:
-            options_rst += "   :workspace:\n"
-        if self.options.get("workspace_path", False) is None:
-            options_rst += "   :workspace_path:\n"
+        if self.options.get('show_workspace', False) is None:
+            options_rst += "   :show_workspace:\n"
+        if self.options.get('show_workspace_path', False) is None:
+            options_rst += "   :show_workspace_path:\n"
+        if self.options.get('path', False):
+            options_rst += "   :path: {}\n".format(self.workspace_path_abs)
 
         macro_rst = """
 .. bazel:macro:: {macro}
@@ -434,14 +461,16 @@ class AutobazelCommonDirective(Directive):
         Adds needed options
         """
         directive_rst = ""
-        if self.options.get("workspace", False) is None:
-            directive_rst += "\n   :workspace:"
-        if self.options.get("workspace_path", False) is None:
-            directive_rst += "\n   :workspace_path:"
+        if self.options.get('show_workspace', False) is None:
+            directive_rst += "\n   :show_workspace:"
+        if self.options.get('show_workspace_path', False) is None:
+            directive_rst += "\n   :show_workspace_path:"
         if self.options.get("implementations", False) is None:
             directive_rst += "\n   :implementations:"
         if self.options.get("macros", False) is None:
             directive_rst += "\n   :macros:"
-        if self.options.get("implementation", False) is None:
-            directive_rst += "\n   :implementation:"
+        if self.options.get("show_implementation", False) is None:
+            directive_rst += "\n   :show_implementation:"
+        if self.options.get("path", False):
+            directive_rst += "\n   :path: {}".format(self.root_path)
         return directive_rst
