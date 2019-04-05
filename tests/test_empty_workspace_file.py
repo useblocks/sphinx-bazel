@@ -16,7 +16,7 @@ from sphinx_testing import with_app
 def test_empty_workspace_file(app, status, warning):
     output = str(check_output(["sphinx-build", "-a", "-E", "-b", "html", app.srcdir, app.outdir],
                               stderr=STDOUT, universal_newlines=True))
-
+    print(output)
     html = Path(app.outdir, 'index.html').read_text()
     assert 'main' in html
     assert 'lib' in html
