@@ -29,6 +29,7 @@ class AutobazelCommonDirective(Directive):
         'rules': directives.flag,  # Shall rules inside bzl-files be printed?
         'macros': directives.flag,  # Shall macros inside bzl-files be printed?
         'implementations': directives.flag,  # Shall implementations inside bzl-files be printed?
+        'attributes': directives.flag,  # Shall attributes of rule be printed?
         'path': directives.unchanged,  # Used as temporary workspace path, if given.
         'name': directives.unchanged,  # Used to manually set a name of a workspace
 
@@ -103,6 +104,8 @@ class AutobazelCommonDirective(Directive):
             return self._handle_rule()
         elif 'macro' in self.name or 'implementation' in self.name:
             return self._handle_macro_implementation()
+        elif 'attribute' in self.name:
+            return self._handle_attribute()
 
         return []
 
@@ -171,6 +174,8 @@ class AutobazelCommonDirective(Directive):
                         workspace_rst += "\n   :implementations:"
                     if self.options.get("macros", False) is None:
                         workspace_rst += "\n   :macros:"
+                    if self.options.get("attributes", False) is None:
+                        workspace_rst += "\n   :attributes:"
                     if self.options.get("show_implementation", False) is None:
                         workspace_rst += "\n   :show_implementation:"
                     if self.options.get("path", False):
@@ -237,6 +242,8 @@ class AutobazelCommonDirective(Directive):
                             package_rst += "\n   :implementations:"
                         if self.options.get("macros", False) is None:
                             package_rst += "\n   :macros:"
+                        if self.options.get("attributes", False) is None:
+                            package_rst += "\n   :attributes:"
                         if self.options.get("show_implementation", False) is None:
                             package_rst += "\n   :show_implementation:"
                         if self.options.get("path", False):
@@ -362,6 +369,7 @@ class AutobazelCommonDirective(Directive):
         file_path, file_extension = os.path.splitext(rule_file_path)
         rule_doc = ""
         rule_impl = ""
+        rule_attrs = []
         if file_extension in ['.bzl']:  # Only check for docstring, if we are sure AST can handle it.
             with open(rule_file_path) as f:
                 try:
@@ -376,6 +384,8 @@ class AutobazelCommonDirective(Directive):
                                     rule_doc = keyword.value.s
                                 if keyword.arg == 'implementation':
                                     rule_impl = keyword.value.id
+                                if keyword.arg == 'attrs':
+                                    rule_attrs = [x.s for x in keyword.value.keys]
                 except SyntaxError:
                     # Looks like file has no Python based syntax. So no documentation to catch
                     rule_doc = ""
@@ -402,6 +412,12 @@ class AutobazelCommonDirective(Directive):
         """.format(rule=rule,
                    options=options_rst,
                    docstring="\n   ".join(rule_doc.split('\n')))
+
+        if self.options.get('attributes', False) is None:
+            for attr_name in rule_attrs:
+                attribute_signature = "{rule}:{attribute}".format(rule=rule, attribute=attr_name)
+                rule_rst += "\n.. autobazel-attribute:: {attribute}".format(attribute=attribute_signature)
+                rule_rst += self._add_options()
 
         self.state_machine.insert_input(rule_rst.split('\n'),
                                         self.state_machine.document.attributes['source'])
@@ -462,6 +478,107 @@ class AutobazelCommonDirective(Directive):
 
         return []
 
+    def _handle_attribute(self):
+        """Cares about the correct handling of autobazel-attributes"""
+        attribute_path = self.arguments[0]
+
+        try:
+            package_name, target_name, rule_name, attribute_name = attribute_path.rsplit(':', 3)
+        except IndexError:
+            self.log.warning("bazel-path for autobazel-attribute looks strange: {}".format(attribute_path))
+
+        target_file_path = os.path.join(self.workspace_path_abs, package_name.replace('//', ''),
+                                      target_name.replace(':', '/'))
+
+        if not os.path.exists(target_file_path):
+            self.log.error("Target for r ule does not exist: {target_path}".format(target_path=target_file_path))
+            return []
+
+        file_path, file_extension = os.path.splitext(target_file_path)
+        rule_doc = ""
+        rule_impl = ""
+        rule_found = False
+        attributes_found = False
+        attributes = {}
+        if file_extension in ['.bzl']:  # Only check for docstring, if we are sure AST can handle it.
+            with open(target_file_path) as f:
+                try:
+                    tree = ast.parse(f.read(), target_file_path)
+                    for element in tree.body:
+                        # Check if we have something like rule_name = rule(...)
+                        # where left part is the target and right part is the value
+                        if isinstance(element, ast.Assign) and element.targets[0].id == rule_name and \
+                                isinstance(element.value, ast.Call) and element.value.func.id == 'rule':
+                            rule_found = True
+                            for keyword in element.value.keywords:
+                                if keyword.arg == 'doc':
+                                    rule_doc = keyword.value.s
+                                if keyword.arg == 'implementation':
+                                    rule_impl = keyword.value.id
+                                if keyword.arg == 'attrs':
+                                    attributes_found = True
+                                    for index, key in enumerate(keyword.value.keys):
+                                        value = keyword.value.values[index]
+                                        attributes[key.s] = {
+                                            'type': value.func.attr,
+                                            'parameters': {}
+                                        }
+                                        for param_keyword in value.keywords:
+                                            if isinstance(param_keyword.value, ast.NameConstant):
+                                                needed_value = str(param_keyword.value.value)
+                                            elif isinstance(param_keyword.value, ast.Str):
+                                                needed_value = param_keyword.value.s
+
+                                            attributes[key.s]['parameters'][param_keyword.arg] = needed_value
+
+                except (SyntaxError, KeyError) as e:
+                    # Looks like file has no Python based syntax. So no documentation to catch
+                    self.log.warning("Problems during parsing of {} happened: {}".format(target_file_path, e))
+                    return []
+
+        if not rule_found:
+            self.log.warning('Rule {} not found for autobazel-attribute'.format(rule_name))
+            return []
+
+        if not attributes_found:
+            self.log.warning('Attributes not found for rule {}'.format(rule_name))
+            return []
+
+        if attribute_name not in attributes.keys():
+            self.log.warning('Attribute {} not found in rule {}. Available attributes: {}'.format(
+                attribute_name, rule_name, ', '.join(attributes.keys())
+            ))
+            return []
+
+        attribute = attributes[attribute_name]
+
+        try:
+            doc_string = attribute['parameters']['doc']
+        except KeyError:
+            doc_string = ''
+
+        options_rst = ""
+        options_rst += "   :implementation: {impl}\n".format(impl=rule_impl)
+        if self.options.get('show_workspace', False) is None:
+            options_rst += "   :show_workspace:\n"
+        if self.options.get('show_workspace_path', False) is None:
+            options_rst += "   :show_workspace_path:\n"
+        if self.options.get('path', False):
+            options_rst += "   :path: {}\n".format(self.workspace_path_abs)
+
+        rule_rst = """
+.. bazel:rule:: {path}
+{options}
+   {docstring}
+        """.format(path=attribute_path,
+                   options=options_rst,
+                   docstring="\n   ".join(doc_string.split('\n')))
+
+        self.state_machine.insert_input(rule_rst.split('\n'),
+                                        self.state_machine.document.attributes['source'])
+
+        return []
+
     def _add_options(self):
         """
         Adds needed options
@@ -475,8 +592,12 @@ class AutobazelCommonDirective(Directive):
             directive_rst += "\n   :implementations:"
         if self.options.get("macros", False) is None:
             directive_rst += "\n   :macros:"
+        if self.options.get("attributes", False) is None:
+            directive_rst += "\n   :attributes:"
         if self.options.get("show_implementation", False) is None:
             directive_rst += "\n   :show_implementation:"
         if self.options.get("path", False):
             directive_rst += "\n   :path: {}".format(self.root_path)
         return directive_rst
+
+

@@ -7,12 +7,13 @@ The Sphinx Bazel domain allows the definition and documentation of Bazel objects
 
 Therefore it provides the following directives:
 
-   * bazel:workspace
-   * bazel:package
-   * bazel:target
-   * bazel:rule
-   * bazel:macro
-   * bazel:implementation
+   * :ref:`domain_workspace`
+   * :ref:`domain_package`
+   * :ref:`domain_target`
+   * :ref:`domain_rule`
+   * :ref:`domain_macro`
+   * :ref:`domain_implementation`
+   * :ref:`domain_attribute`
 
 The content part of each directive supports fully RsT, so you are free to add lists, images or functions from
 other Sphinx extensions.
@@ -398,3 +399,24 @@ To describe a Bazel implementation use ``bazel:implementation``::
    You can also use ``bazel:impl`` to define this.
 
 It gets automatically assigned to latest defined workspace.
+
+.. _domain_attribute:
+
+bazel:attribute
+---------------
+
+Attributes are used inside Bazel rules.
+
+To document a single attribute use
+``bazel:attribute``::
+
+   .. bazel:attribute:: //my/package:file.bzl:my_rule:attribute_1
+
+      Takes a string, which is used to perform **awesome** stuff
+
+
+**Result**
+
+.. bazel:attribute:: //my/package:file.bzl:my_rule:attribute_1
+
+      Takes a string, which is used to perform **awesome** stuff

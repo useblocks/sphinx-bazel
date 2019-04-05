@@ -21,6 +21,7 @@ bzl_sig_re = re.compile(
     r'''^  \/\/([\w\/]*)     # package name
            (:([\w\/.-]*))?   # target name
            (:([\w\/.-]*))?   # rule, macro or impl name (named later internally as internal)
+           (:([\w\/.-]*))?   # attribute name 
            $                 # and nothing more
           ''', re.VERBOSE)
 
@@ -69,7 +70,7 @@ class BazelObject(ObjectDescription):
         if m is None:
             logger.error("Sphinx-Bazel: Parse problems with signature: {}".format(sig))
             raise ValueError
-        package, after_package, target, after_target, internal = m.groups()
+        package, after_package, target, after_target, internal, after_internal, attribute = m.groups()
 
         # Let's see if we have to use a specific workspace path or if we have to use the latest defined workspace
         self.specific_workspace_path = self.options.get('path', None)
@@ -90,6 +91,8 @@ class BazelObject(ObjectDescription):
             sig_text += ':{}'.format(target)
         if internal:
             sig_text += ':{}'.format(internal)
+        if attribute:
+            sig_text += ':{}'.format(attribute)
         signode += addnodes.desc_name(sig_text, sig_text)
 
         if self.options.get('show_workspace', False) is None:  # if flag is set, value is None
