@@ -7,12 +7,13 @@ The Sphinx Bazel domain allows the definition and documentation of Bazel objects
 
 Therefore it provides the following directives:
 
-   * bazel:workspace
-   * bazel:package
-   * bazel:target
-   * bazel:rule
-   * bazel:macro
-   * bazel:implementation
+   * :ref:`domain_workspace`
+   * :ref:`domain_package`
+   * :ref:`domain_target`
+   * :ref:`domain_rule`
+   * :ref:`domain_macro`
+   * :ref:`domain_implementation`
+   * :ref:`domain_attribute`
 
 The content part of each directive supports fully RsT, so you are free to add lists, images or functions from
 other Sphinx extensions.
@@ -277,6 +278,27 @@ implementation
 
    You have to use :ref:`rule_show_implementation` to get the value also printed.
 
+.. _rule_invocation:
+
+invocation
+~~~~~~~~~~
+
+``:invocation:`` allows the definition of a invocation string to show how to call/use this rule::
+
+   .. bazel:rule:: //my/package:target:rule
+      :invocation: rule(attribute_1, attribute_2)
+
+      Some input
+
+.. bazel:rule:: //my/package:target:rule
+   :invocation: rule(attribute_1, attribute_2)
+
+   Some input
+
+.. note::
+
+   You have to use :ref:`rule_show_invocation` to get the value also printed.
+
 .. _rule_show_implementation:
 
 show_implementation
@@ -304,6 +326,27 @@ show_implementation
 .. bazel:rule:: //my/package:target:rule
    :implementation: __my_rule_func
    :show_implementation:
+
+   Some input
+
+.. _rule_show_invocation:
+
+show_invocation
+~~~~~~~~~~~~~~~
+
+``:show_invocation:`` prints the invocation string::
+
+    .. bazel:rule:: //my/package:target:rule
+      :invocation: rule(attribute_1, attribute_2)
+      :show_invocation:
+
+      Some input
+
+**Result**
+
+.. bazel:rule:: //my/package:target:rule
+   :invocation: rule(attribute_1, attribute_2)
+   :show_invocation:
 
    Some input
 
@@ -398,3 +441,24 @@ To describe a Bazel implementation use ``bazel:implementation``::
    You can also use ``bazel:impl`` to define this.
 
 It gets automatically assigned to latest defined workspace.
+
+.. _domain_attribute:
+
+bazel:attribute
+---------------
+
+Attributes are used inside Bazel rules.
+
+To document a single attribute use
+``bazel:attribute``::
+
+   .. bazel:attribute:: //my/package:file.bzl:my_rule:attribute_1
+
+      Takes a string, which is used to perform **awesome** stuff
+
+
+**Result**
+
+.. bazel:attribute:: //my/package:file.bzl:my_rule:attribute_1
+
+      Takes a string, which is used to perform **awesome** stuff

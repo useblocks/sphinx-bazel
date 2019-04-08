@@ -21,6 +21,7 @@ bzl_sig_re = re.compile(
     r'''^  \/\/([\w\/]*)     # package name
            (:([\w\/.-]*))?   # target name
            (:([\w\/.-]*))?   # rule, macro or impl name (named later internally as internal)
+           (:([\w\/.-]*))?   # attribute name 
            $                 # and nothing more
           ''', re.VERBOSE)
 
@@ -32,15 +33,18 @@ class BazelObject(ObjectDescription):
     option_spec = {
         'path': directives.unchanged,  # Can be used to specify local, not-valid workspace
         'implementation': directives.unchanged,  # Used by bazel:rule to define implementation function
+        'invocation': directives.unchanged,  # Used to define a string which represents a complete call
         'show_workspace': directives.flag,
         'show_workspace_path': directives.flag,
         'show_implementation': directives.flag,
+        'show_invocation': directives.flag,
     }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.implementation = None
+        self.invocation = None
         self.specific_workspace_path = None
 
     def get_signature_prefix(self, sig):
@@ -69,7 +73,7 @@ class BazelObject(ObjectDescription):
         if m is None:
             logger.error("Sphinx-Bazel: Parse problems with signature: {}".format(sig))
             raise ValueError
-        package, after_package, target, after_target, internal = m.groups()
+        package, after_package, target, after_target, internal, after_internal, attribute = m.groups()
 
         # Let's see if we have to use a specific workspace path or if we have to use the latest defined workspace
         self.specific_workspace_path = self.options.get('path', None)
@@ -90,6 +94,8 @@ class BazelObject(ObjectDescription):
             sig_text += ':{}'.format(target)
         if internal:
             sig_text += ':{}'.format(internal)
+        if attribute:
+            sig_text += ':{}'.format(attribute)
         signode += addnodes.desc_name(sig_text, sig_text)
 
         if self.options.get('show_workspace', False) is None:  # if flag is set, value is None
@@ -109,12 +115,20 @@ class BazelObject(ObjectDescription):
             self._add_signature_detail(signode, ws_path_string)
 
         rule_impl = self.options.get('implementation', "")
-        if rule_impl:  # if flag is set, value is None
+        if rule_impl:
             self.implementation = rule_impl
+
+        rule_invocation = self.options.get('invocation', "")
+        if rule_invocation:
+            self.invocation = rule_invocation
 
         if self.options.get('show_implementation', False) is None:
             impl_string = 'implementation: {}'.format(self.implementation)
             self._add_signature_detail(signode, impl_string)
+
+        if self.options.get('show_invocation', False) is None:
+            invocation_string = 'invocation: {}'.format(self.invocation)
+            self._add_signature_detail(signode, invocation_string)
 
         return sig, sig
 
@@ -130,3 +144,4 @@ class BazelObject(ObjectDescription):
         ws_line = nodes.line()
         ws_line += addnodes.desc_addname(text, text)
         signode += ws_line
+

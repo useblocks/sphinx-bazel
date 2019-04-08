@@ -3,7 +3,8 @@
 Autobazel
 =========
 
-Autobazel-directives allow the automatic documentation of Bazel workspaces, packages, targets and rules.
+Autobazel-directives allow the automatic documentation of Bazel workspaces, packages, targets, rules, marcos,
+implementations and rule attributes.
 
 All showed examples are based on the same Bazel example workspace, which structure and content is explained at
 the end of this page: :ref:`project_example`.
@@ -18,7 +19,7 @@ autobazel-workspace
 
 Documents a whole Bazel workspace::
 
-   .. autobazel-workspace: ./bazel_example
+   .. autobazel-workspace:: ./bazel_example
 
 **Result**
 
@@ -120,24 +121,45 @@ Like in :ref:`autobazel_package` please make sure that a workspace got defined.
 
 ``autobazel-implementation`` uses the docstring of the implementation as implementation description.
 
+.. _autobazel_attribute:
+
+autobazel-attribute
+-------------------
+
+Documents a specific Bazel rule attribute::
+
+   .. autobazel-attribute:: //main:hello-world.bzl:custom_build_rule:package_script
+
+
+**Result**
+
+.. autobazel-attribute:: //main:hello-world.bzl:custom_build_rule:package_script
+
+
+``autobazel-attribute`` searches for docstrings in the doc-attribute of an attribute.
+
 Options
 -------
 
 Most options are supported by the above directives, as they are very common.
 However, some are not. So here is an overview about which autobazel directive supports what kind of options.
 
+Used abbreviations: ws=workspace, pack=package, targ=target, impl=implementation, attr=attribute
+
 .. list-table::
    :header-rows: 1
 
    * - Option/autobazel-...
-     - workspace
-     - package
-     - target
+     - ws
+     - pack
+     - targ
      - rule
      - macro
-     - impl.
+     - impl
+     - attr
    * - :ref:`option_path`
      - ⛔
+     - 👍
      - 👍
      - 👍
      - 👍
@@ -150,8 +172,10 @@ However, some are not. So here is an overview about which autobazel directive su
      - ⛔
      - ⛔
      - ⛔
+     - ⛔
    * - :ref:`option_packages`
      - 👍
+     - ⛔
      - ⛔
      - ⛔
      - ⛔
@@ -164,10 +188,12 @@ However, some are not. So here is an overview about which autobazel directive su
      - ⛔
      - ⛔
      - ⛔
+     - ⛔
    * - :ref:`option_rules`
      - 👍
      - 👍
      - 👍
+     - ⛔
      - ⛔
      - ⛔
      - ⛔
@@ -178,7 +204,17 @@ However, some are not. So here is an overview about which autobazel directive su
      - ⛔
      - ⛔
      - ⛔
+     - ⛔
    * - :ref:`option_implementations`
+     - 👍
+     - 👍
+     - 👍
+     - ⛔
+     - ⛔
+     - ⛔
+     - ⛔
+   * - :ref:`option_attributes`
+     - 👍
      - 👍
      - 👍
      - 👍
@@ -192,13 +228,23 @@ However, some are not. So here is an overview about which autobazel directive su
      - 👍
      - 👍
      - 👍
+     - 👍
    * - :ref:`option_show_implementation`
      - 👍
      - 👍
      - 👍
      - 👍
+     - ⛔
+     - ⛔
+     - ⛔
+   * - :ref:`option_show_invocation`
      - 👍
      - 👍
+     - 👍
+     - 👍
+     - ⛔
+     - ⛔
+     - ⛔
    * - :ref:`option_show_workspace`
      - 👍
      - 👍
@@ -206,7 +252,9 @@ However, some are not. So here is an overview about which autobazel directive su
      - 👍
      - 👍
      - 👍
+     - 👍
    * - :ref:`option_show_workspace_path`
+     - 👍
      - 👍
      - 👍
      - 👍
@@ -222,13 +270,15 @@ path
 .. list-table::
    :header-rows: 1
 
-   * - workspace
-     - package
-     - target
+   * - ws
+     - pack
+     - targ
      - rule
      - macro
      - impl.
+     - attr
    * - ⛔
+     - 👍
      - 👍
      - 👍
      - 👍
@@ -268,13 +318,15 @@ name
 .. list-table::
    :header-rows: 1
 
-   * - workspace
-     - package
-     - target
+   * - ws
+     - pack
+     - targ
      - rule
      - macro
      - impl.
+     - attr
    * - 👍
+     - ⛔
      - ⛔
      - ⛔
      - ⛔
@@ -313,13 +365,15 @@ packages
 .. list-table::
    :header-rows: 1
 
-   * - workspace
-     - package
-     - target
+   * - ws
+     - pack
+     - targ
      - rule
      - macro
      - impl.
+     - attr
    * - 👍
+     - ⛔
      - ⛔
      - ⛔
      - ⛔
@@ -345,14 +399,16 @@ targets
 .. list-table::
    :header-rows: 1
 
-   * - workspace
-     - package
-     - target
+   * - ws
+     - pack
+     - targ
      - rule
      - macro
      - impl.
+     - attr
    * - 👍
      - 👍
+     - ⛔
      - ⛔
      - ⛔
      - ⛔
@@ -379,15 +435,17 @@ rules
 .. list-table::
    :header-rows: 1
 
-   * - workspace
-     - package
-     - target
+   * - ws
+     - pack
+     - targ
      - rule
      - macro
      - impl.
+     - attr
    * - 👍
      - 👍
      - 👍
+     - ⛔
      - ⛔
      - ⛔
      - ⛔
@@ -412,15 +470,17 @@ macros
 .. list-table::
    :header-rows: 1
 
-   * - workspace
-     - package
-     - target
+   * - ws
+     - pack
+     - targ
      - rule
      - macro
      - impl.
+     - attr
    * - 👍
      - 👍
      - 👍
+     - ⛔
      - ⛔
      - ⛔
      - ⛔
@@ -447,15 +507,17 @@ implementations
 .. list-table::
    :header-rows: 1
 
-   * - workspace
-     - package
-     - target
+   * - ws
+     - pack
+     - targ
      - rule
      - macro
      - impl.
+     - attr
    * - 👍
      - 👍
      - 👍
+     - ⛔
      - ⛔
      - ⛔
      - ⛔
@@ -466,13 +528,47 @@ If ``:implementations:`` is set, all found implementations inside targets with e
        :path: ./bazel_example
        :implementations:
 
-Is only used, if ``:packages:`` and ``:targets:`` are provided as well!
+**Result**
+
+.. autobazel-target:: //main:hello-world.bzl
+   :path: ./bazel_example
+   :implementations:
+
+.. _option_attributes:
+
+attributes
+~~~~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - ws
+     - pack
+     - targ
+     - rule
+     - macro
+     - impl.
+     - attr
+   * - 👍
+     - 👍
+     - 👍
+     - 👍
+     - ⛔
+     - ⛔
+     - ⛔
+
+If ``:attributes:`` is set, all found attributes of a rule will be printed ::
+
+    .. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+       :path: ./bazel_example
+       :attributes:
 
 **Result**
 
- .. autobazel-target:: //main:hello-world.bzl
-    :path: ./bazel_example
-    :implementations:
+.. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+   :path: ./bazel_example
+   :attributes:
+
 
 .. _option_hide:
 
@@ -482,13 +578,15 @@ hide
 .. list-table::
    :header-rows: 1
 
-   * - workspace
-     - package
-     - target
+   * - ws
+     - pack
+     - targ
      - rule
      - macro
      - impl.
+     - attr
    * - 👍
+     - 👍
      - 👍
      - 👍
      - 👍
@@ -516,18 +614,20 @@ show_implementation
 .. list-table::
    :header-rows: 1
 
-   * - workspace
-     - package
-     - target
+   * - ws
+     - pack
+     - targ
      - rule
      - macro
      - impl.
+     - attr
    * - 👍
      - 👍
      - 👍
      - 👍
-     - 👍
-     - 👍
+     - ⛔
+     - ⛔
+     - ⛔
 
 If ``show_implementation`` is given, the name of the implementation function of found rules gets printed::
 
@@ -541,6 +641,41 @@ If ``show_implementation`` is given, the name of the implementation function of 
    :path: ./bazel_example
    :show_implementation:
 
+.. _option_show_invocation:
+
+show_invocation
+~~~~~~~~~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - ws
+     - pack
+     - targ
+     - rule
+     - macro
+     - impl.
+     - attr
+   * - 👍
+     - 👍
+     - 👍
+     - 👍
+     - ⛔
+     - ⛔
+     - ⛔
+
+If ``show_invocation`` is given, a generated invocation string based on name an attribute names gets printed::
+
+    .. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+       :path: ./bazel_example
+       :show_invocation:
+
+**Result**
+
+.. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+   :path: ./bazel_example
+   :show_invocation:
+
 .. _option_show_workspace:
 
 show_workspace
@@ -549,13 +684,15 @@ show_workspace
 .. list-table::
    :header-rows: 1
 
-   * - workspace
-     - package
-     - target
+   * - ws
+     - pack
+     - targ
      - rule
      - macro
      - impl.
+     - attr
    * - 👍
+     - 👍
      - 👍
      - 👍
      - 👍
@@ -583,13 +720,15 @@ show_workspace_path
 .. list-table::
    :header-rows: 1
 
-   * - workspace
-     - package
-     - target
+   * - ws
+     - pack
+     - targ
      - rule
      - macro
      - impl.
+     - attr
    * - 👍
+     - 👍
      - 👍
      - 👍
      - 👍
@@ -598,16 +737,15 @@ show_workspace_path
 
 If ``:workspace_path`` is given, the workspace path will get added packages and targets::
 
-   .. autobazel-workspace:: ./bazel_example
+   .. autobazel-attribute:: //main:hello-world.bzl:custom_build_rule:package_script
+      :path: ./bazel_example
       :show_workspace_path:
-      :packages:
 
 **Result**
 
-.. autobazel-workspace:: ./bazel_example
-   :name: ws_show_workspace_path_example
+.. autobazel-attribute:: //main:hello-world.bzl:custom_build_rule:package_script
+   :path: ./bazel_example
    :show_workspace_path:
-   :packages:
 
 
 .. _project_example:
@@ -669,9 +807,11 @@ The following documentation of the complete Bazel Workspace uses nearly every av
        :rules:
        :macros:
        :implementations:
+       :attributes:
        :show_workspace:         // from here layout options only
        :show_workspace_path:
        :show_implementation:
+       :show_invocation:
 
 **Result**
 
@@ -682,6 +822,8 @@ The following documentation of the complete Bazel Workspace uses nearly every av
    :rules:
    :macros:
    :implementations:
+   :attributes:
    :show_workspace:
    :show_workspace_path:
    :show_implementation:
+   :show_invocation:
