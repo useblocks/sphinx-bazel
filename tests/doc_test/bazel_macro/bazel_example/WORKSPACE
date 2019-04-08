@@ -1,0 +1,10 @@
+"""
+**My workspace description**
+
+.. code-block:: python
+
+   # Some python code
+   print("awesome")
+"""
+
+workspace(name = "hello_world_workspace")
