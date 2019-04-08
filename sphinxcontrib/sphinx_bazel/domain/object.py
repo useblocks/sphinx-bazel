@@ -33,15 +33,18 @@ class BazelObject(ObjectDescription):
     option_spec = {
         'path': directives.unchanged,  # Can be used to specify local, not-valid workspace
         'implementation': directives.unchanged,  # Used by bazel:rule to define implementation function
+        'invocation': directives.unchanged,  # Used to define a string which represents a complete call
         'show_workspace': directives.flag,
         'show_workspace_path': directives.flag,
         'show_implementation': directives.flag,
+        'show_invocation': directives.flag,
     }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.implementation = None
+        self.invocation = None
         self.specific_workspace_path = None
 
     def get_signature_prefix(self, sig):
@@ -112,12 +115,20 @@ class BazelObject(ObjectDescription):
             self._add_signature_detail(signode, ws_path_string)
 
         rule_impl = self.options.get('implementation', "")
-        if rule_impl:  # if flag is set, value is None
+        if rule_impl:
             self.implementation = rule_impl
+
+        rule_invocation = self.options.get('invocation', "")
+        if rule_invocation:
+            self.invocation = rule_invocation
 
         if self.options.get('show_implementation', False) is None:
             impl_string = 'implementation: {}'.format(self.implementation)
             self._add_signature_detail(signode, impl_string)
+
+        if self.options.get('show_invocation', False) is None:
+            invocation_string = 'invocation: {}'.format(self.invocation)
+            self._add_signature_detail(signode, invocation_string)
 
         return sig, sig
 
@@ -133,3 +144,4 @@ class BazelObject(ObjectDescription):
         ws_line = nodes.line()
         ws_line += addnodes.desc_addname(text, text)
         signode += ws_line
+

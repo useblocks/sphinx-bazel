@@ -7,6 +7,8 @@ Changelog
 * Improvement: Added :ref:`domain_attribute` to document rule attributes
 * Improvement: Added :ref:`autobazel_attribute` to automatically load attributes
 * Improvement: Option :ref:`option_attributes` added to print attributes
+* Improvement: Options :ref:`rule_invocation` and :ref:`rule_show_invocation` added to define and show invocations
+  strings for rules, macros and implementations.
 * Improvement: Option :ref:`option_name` added to define specific workspace names
 * Improvement: Option :ref:`option_path` added to support documentation of Bazel objects without a valid workspace
   (`#6 <https://github.com/useblocks/sphinx-bazel/issues/6>`_)

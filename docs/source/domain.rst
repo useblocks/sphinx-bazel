@@ -278,6 +278,27 @@ implementation
 
    You have to use :ref:`rule_show_implementation` to get the value also printed.
 
+.. _rule_invocation:
+
+invocation
+~~~~~~~~~~
+
+``:invocation:`` allows the definition of a invocation string to show how to call/use this rule::
+
+   .. bazel:rule:: //my/package:target:rule
+      :invocation: rule(attribute_1, attribute_2)
+
+      Some input
+
+.. bazel:rule:: //my/package:target:rule
+   :invocation: rule(attribute_1, attribute_2)
+
+   Some input
+
+.. note::
+
+   You have to use :ref:`rule_show_invocation` to get the value also printed.
+
 .. _rule_show_implementation:
 
 show_implementation
@@ -305,6 +326,27 @@ show_implementation
 .. bazel:rule:: //my/package:target:rule
    :implementation: __my_rule_func
    :show_implementation:
+
+   Some input
+
+.. _rule_show_invocation:
+
+show_invocation
+~~~~~~~~~~~~~~~
+
+``:show_invocation:`` prints the invocation string::
+
+    .. bazel:rule:: //my/package:target:rule
+      :invocation: rule(attribute_1, attribute_2)
+      :show_invocation:
+
+      Some input
+
+**Result**
+
+.. bazel:rule:: //my/package:target:rule
+   :invocation: rule(attribute_1, attribute_2)
+   :show_invocation:
 
    Some input
 

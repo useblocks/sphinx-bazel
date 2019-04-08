@@ -37,6 +37,7 @@ class AutobazelCommonDirective(Directive):
         'show_workspace': directives.flag,  # Prints workspace name to all documented elements
         'show_workspace_path': directives.flag,  # Prints workspace_path name to all documented elements
         'show_implementation': directives.flag,  # Prints the used function name for implementation of a rule
+        'show_invocation': directives.flag,  # Prints the invocation string
     }
     final_argument_whitespace = True
 
@@ -48,6 +49,8 @@ class AutobazelCommonDirective(Directive):
         self.workspace_name = None
         self.workspace_path = None
         self.workspace_path_abs = None
+
+        self.bzl_content = {}
 
     @property
     def env(self):
@@ -102,8 +105,10 @@ class AutobazelCommonDirective(Directive):
             return self._handle_target()
         elif 'rule' in self.name:
             return self._handle_rule()
-        elif 'macro' in self.name or 'implementation' in self.name:
-            return self._handle_macro_implementation()
+        elif 'macro' in self.name:
+            return self._handle_macro()
+        elif 'implementation' in self.name:
+            return self._handle_implementation()
         elif 'attribute' in self.name:
             return self._handle_attribute()
 
@@ -178,6 +183,8 @@ class AutobazelCommonDirective(Directive):
                         workspace_rst += "\n   :attributes:"
                     if self.options.get("show_implementation", False) is None:
                         workspace_rst += "\n   :show_implementation:"
+                    if self.options.get("show_invocation", False) is None:
+                        workspace_rst += "\n   :show_invocation:"
                     if self.options.get("path", False):
                         workspace_rst += "\n   :path: {}".format(self.root_path)
 
@@ -246,6 +253,8 @@ class AutobazelCommonDirective(Directive):
                             package_rst += "\n   :attributes:"
                         if self.options.get("show_implementation", False) is None:
                             package_rst += "\n   :show_implementation:"
+                        if self.options.get("show_invocation", False) is None:
+                            package_rst += "\n   :show_invocation:"
                         if self.options.get("path", False):
                             package_rst += "\n   :path: {}".format(self.root_path)
 
@@ -264,17 +273,10 @@ class AutobazelCommonDirective(Directive):
 
         file_path, file_extension = os.path.splitext(target_path)
         if file_extension in ['.bzl']:  # Only check for docstring, if we are sure AST can handle it.
-            with open(target_path) as f:
-                try:
-                    tree = ast.parse(f.read(), target_path)
-                    target_docstring = ast.get_docstring(tree)
-                except SyntaxError:
-                    # Looks like file has no Python based syntax. So no documentation to catch
-                    target_docstring = ""
-        else:
-            target_docstring = ""
+            content = self._parse_bzl(target_path)
+            target_docstring = content['doc']
 
-        if target_docstring is None:
+        if file_extension not in ['.bzl'] or target_docstring is None:
             target_docstring = ""
 
         options_rst = ""
@@ -301,33 +303,9 @@ class AutobazelCommonDirective(Directive):
             or self.options.get('macros', False) is None
             or self.options.get('implementations', False) is None) \
                 and file_extension in ['.bzl']:
-            # Check for rules, macros and implementations
-            with open(target_path) as f:
-                rule_names = []
-                macro_names = []
-                implementation_names = []
-                try:
-                    tree = ast.parse(f.read(), target_path)
-                    for element in tree.body:
-                        # Check if we have something like rule_name = rule(...)
-                        # where left part is the target and right part is the value
-                        if isinstance(element, ast.Assign) \
-                                and isinstance(element.value, ast.Call) \
-                                and element.value.func.id == 'rule':
-                            rule_names.append(element.targets[0].id)
-                        elif isinstance(element, ast.FunctionDef):
-                            # rule_implementation get only 'ctx as argument. Nothing else.
-                            if len(element.args.args) == 1 and element.args.args[0].arg == 'ctx':
-                                implementation_names.append(element.name)
-                            # if it does not get 'ctx' as argument, it must be a macro.
-                            else:
-                                macro_names.append(element.name)
-                except SyntaxError:
-                    self.log.error('Could not parse target: '.format(target_path))
-                    return []
 
             if self.options.get('rules', False) is None:
-                for rule_name in rule_names:
+                for rule_name in content['rules']:
                     rule_signature = "{target}:{rule}".format(
                         target=target,
                         rule=rule_name)
@@ -335,7 +313,7 @@ class AutobazelCommonDirective(Directive):
                     target_rst += self._add_options()
 
             if self.options.get('macros', False) is None:
-                for macro_name in macro_names:
+                for macro_name in content['macros']:
                     macro_signature = "{target}:{macro}".format(
                         target=target,
                         macro=macro_name)
@@ -343,7 +321,7 @@ class AutobazelCommonDirective(Directive):
                     target_rst += self._add_options()
 
             if self.options.get('implementations', False) is None:
-                for implementation_name in implementation_names:
+                for implementation_name in content['implementations']:
                     implementation_signature = "{target}:{implementation}".format(
                         target=target,
                         implementation=implementation_name)
@@ -366,29 +344,14 @@ class AutobazelCommonDirective(Directive):
             self.log.error("Target for rule does not exist: {rule_file_path}".format(target_path=rule_file_path))
             return []
 
-        file_path, file_extension = os.path.splitext(rule_file_path)
-        rule_doc = ""
-        rule_impl = ""
-        rule_attrs = []
-        if file_extension in ['.bzl']:  # Only check for docstring, if we are sure AST can handle it.
-            with open(rule_file_path) as f:
-                try:
-                    tree = ast.parse(f.read(), rule_file_path)
-                    for element in tree.body:
-                        # Check if we have something like rule_name = rule(...)
-                        # where left part is the target and right part is the value
-                        if isinstance(element, ast.Assign) and element.targets[0].id == rule_name and \
-                                isinstance(element.value, ast.Call) and element.value.func.id == 'rule':
-                            for keyword in element.value.keywords:
-                                if keyword.arg == 'doc':
-                                    rule_doc = keyword.value.s
-                                if keyword.arg == 'implementation':
-                                    rule_impl = keyword.value.id
-                                if keyword.arg == 'attrs':
-                                    rule_attrs = [x.s for x in keyword.value.keys]
-                except SyntaxError:
-                    # Looks like file has no Python based syntax. So no documentation to catch
-                    rule_doc = ""
+        content = self._parse_bzl(rule_file_path)
+
+        if rule_name not in content['rules'].keys():
+            self.log.warning('Unknown rule {}'.format(rule))
+        rule_doc = content['rules'][rule_name]['doc']
+        rule_impl = content['rules'][rule_name]['implementation']
+        rule_attrs = content['rules'][rule_name]['attributes']
+        rule_invocation = '{}({})'.format(rule_name, ', '.join(rule_attrs.keys()))
 
         # We have have found a rule_doc in the tree, but no value/None was set.
         if rule_doc is None:
@@ -396,12 +359,15 @@ class AutobazelCommonDirective(Directive):
 
         options_rst = ""
         options_rst += "   :implementation: {impl}\n".format(impl=rule_impl)
+        options_rst += "   :invocation: {impl}\n".format(impl=rule_invocation)
         if self.options.get('show_workspace', False) is None:
             options_rst += "   :show_workspace:\n"
         if self.options.get('show_workspace_path', False) is None:
             options_rst += "   :show_workspace_path:\n"
         if self.options.get("show_implementation", False) is None:
             options_rst += "   :show_implementation: \n"
+        if self.options.get("show_invocation", False) is None:
+            options_rst += "   :show_invocation: \n"
         if self.options.get('path', False):
             options_rst += "   :path: {}\n".format(self.workspace_path_abs)
 
@@ -424,7 +390,7 @@ class AutobazelCommonDirective(Directive):
 
         return []
 
-    def _handle_macro_implementation(self):
+    def _handle_macro(self):
         macro = self.arguments[0]
         macro_name = macro.rsplit(':', 1)[1]
 
@@ -435,23 +401,13 @@ class AutobazelCommonDirective(Directive):
             self.log.error("Target for macro does not exist: {target_path}".format(target_path=macro_file_path))
             return []
 
-        file_path, file_extension = os.path.splitext(macro_file_path)
-        macro_doc = ""
-        if file_extension in ['.bzl']:  # Only check for docstring, if we are sure AST can handle it.
-            with open(macro_file_path) as f:
-                try:
-                    tree = ast.parse(f.read(), macro_file_path)
-                    for element in tree.body:
-                        if isinstance(element, ast.FunctionDef) and element.name == macro_name:
-                            # ToDo: If we shall document an implementation, we should check if *ctx* is the only
-                            # ToDo: argument
-                            try:
-                                macro_doc = element.body[0].value.s
-                            except [KeyError, AttributeError, IndexError]:
-                                macro_doc = ""
-                except SyntaxError:
-                    # Looks like file has no Python based syntax. So no documentation to catch
-                    macro_doc = ""
+        content = self._parse_bzl(macro_file_path)
+
+        if macro_name not in content['macros'].keys():
+            self.log.warning('Macro {} not found in file {}'.format(macro_name, macro_file_path))
+            return []
+
+        macro_doc = content['macros'][macro_name]['doc']
 
         # We have have found a rule_doc in the tree, but no value/None was set.
         if macro_doc is None:
@@ -478,6 +434,50 @@ class AutobazelCommonDirective(Directive):
 
         return []
 
+    def _handle_implementation(self):
+        impl = self.arguments[0]
+        impl_name = impl.rsplit(':', 1)[1]
+
+        impl_file_path = os.path.join(self.workspace_path_abs,
+                                       impl.replace('//', '').rsplit(":", 1)[0].replace(':', '/'))
+
+        if not os.path.exists(impl_file_path):
+            self.log.error("Target for implementation does not exist: {target_path}".format(target_path=impl_file_path))
+            return []
+
+        content = self._parse_bzl(impl_file_path)
+
+        if impl_name not in content['implementations'].keys():
+            self.log.warning('Implementation {} not found in file {}'.format(impl_name, impl_file_path))
+            return []
+
+        impl_doc = content['implementations'][impl_name]['doc']
+
+        # We have have found a rule_doc in the tree, but no value/None was set.
+        if impl_doc is None:
+            impl_doc = ""
+
+        options_rst = ""
+        if self.options.get('show_workspace', False) is None:
+            options_rst += "   :show_workspace:\n"
+        if self.options.get('show_workspace_path', False) is None:
+            options_rst += "   :show_workspace_path:\n"
+        if self.options.get('path', False):
+            options_rst += "   :path: {}\n".format(self.workspace_path_abs)
+
+        implementation_rst = """
+.. bazel:implementation:: {macro}
+{options}
+   {docstring}
+        """.format(macro=impl,
+                   options=options_rst,
+                   docstring="\n   ".join(impl_doc.split('\n')))
+
+        self.state_machine.insert_input(implementation_rst.split('\n'),
+                                        self.state_machine.document.attributes['source'])
+
+        return []
+
     def _handle_attribute(self):
         """Cares about the correct handling of autobazel-attributes"""
         attribute_path = self.arguments[0]
@@ -494,56 +494,13 @@ class AutobazelCommonDirective(Directive):
             self.log.error("Target for r ule does not exist: {target_path}".format(target_path=target_file_path))
             return []
 
-        file_path, file_extension = os.path.splitext(target_file_path)
-        rule_doc = ""
-        rule_impl = ""
-        rule_found = False
-        attributes_found = False
-        attributes = {}
-        if file_extension in ['.bzl']:  # Only check for docstring, if we are sure AST can handle it.
-            with open(target_file_path) as f:
-                try:
-                    tree = ast.parse(f.read(), target_file_path)
-                    for element in tree.body:
-                        # Check if we have something like rule_name = rule(...)
-                        # where left part is the target and right part is the value
-                        if isinstance(element, ast.Assign) and element.targets[0].id == rule_name and \
-                                isinstance(element.value, ast.Call) and element.value.func.id == 'rule':
-                            rule_found = True
-                            for keyword in element.value.keywords:
-                                if keyword.arg == 'doc':
-                                    rule_doc = keyword.value.s
-                                if keyword.arg == 'implementation':
-                                    rule_impl = keyword.value.id
-                                if keyword.arg == 'attrs':
-                                    attributes_found = True
-                                    for index, key in enumerate(keyword.value.keys):
-                                        value = keyword.value.values[index]
-                                        attributes[key.s] = {
-                                            'type': value.func.attr,
-                                            'parameters': {}
-                                        }
-                                        for param_keyword in value.keywords:
-                                            if isinstance(param_keyword.value, ast.NameConstant):
-                                                needed_value = str(param_keyword.value.value)
-                                            elif isinstance(param_keyword.value, ast.Str):
-                                                needed_value = param_keyword.value.s
+        content = self._parse_bzl(target_file_path)
 
-                                            attributes[key.s]['parameters'][param_keyword.arg] = needed_value
-
-                except (SyntaxError, KeyError) as e:
-                    # Looks like file has no Python based syntax. So no documentation to catch
-                    self.log.warning("Problems during parsing of {} happened: {}".format(target_file_path, e))
-                    return []
-
-        if not rule_found:
+        if rule_name not in content['rules'].keys():
             self.log.warning('Rule {} not found for autobazel-attribute'.format(rule_name))
             return []
 
-        if not attributes_found:
-            self.log.warning('Attributes not found for rule {}'.format(rule_name))
-            return []
-
+        attributes = content['rules'][rule_name]['attributes']
         if attribute_name not in attributes.keys():
             self.log.warning('Attribute {} not found in rule {}. Available attributes: {}'.format(
                 attribute_name, rule_name, ', '.join(attributes.keys())
@@ -558,7 +515,6 @@ class AutobazelCommonDirective(Directive):
             doc_string = ''
 
         options_rst = ""
-        options_rst += "   :implementation: {impl}\n".format(impl=rule_impl)
         if self.options.get('show_workspace', False) is None:
             options_rst += "   :show_workspace:\n"
         if self.options.get('show_workspace_path', False) is None:
@@ -596,8 +552,85 @@ class AutobazelCommonDirective(Directive):
             directive_rst += "\n   :attributes:"
         if self.options.get("show_implementation", False) is None:
             directive_rst += "\n   :show_implementation:"
+        if self.options.get("show_invocation", False) is None:
+            directive_rst += "\n   :show_invocation:"
         if self.options.get("path", False):
             directive_rst += "\n   :path: {}".format(self.root_path)
         return directive_rst
 
+    def _parse_bzl(self, bzl_file):
+        """
+        Parse a bzl-file and stores its contents inside a dictionary.
 
+        It stores docstring, rule, macro, implementations and rule_attributes.
+
+        :param bzl_file: path to the bzl_file
+
+        :return: dictionary of parsed results
+        """
+
+        # Let's be sure to parse a bzl file only once.
+        # If it got already parsed, return the result
+        if bzl_file in self.bzl_content.keys():
+            return self.bzl_content[bzl_file]
+
+        content = {
+            'doc': '',
+            'rules': {},
+            'macros': {},
+            'implementations': {}
+        }
+
+        with open(bzl_file) as f:
+            try:
+                tree = ast.parse(f.read(), bzl_file)
+                content['doc'] = ast.get_docstring(tree)
+                for element in tree.body:
+                    # Check for rule data
+                    if isinstance(element, ast.Assign) and isinstance(element.value, ast.Call) \
+                            and element.value.func.id == 'rule':
+                        rule = {}
+                        rule['name'] = element.targets[0].id
+                        for keyword in element.value.keywords:
+                            if keyword.arg == 'doc':
+                                rule['doc'] = keyword.value.s
+                            if keyword.arg == 'implementation':
+                                rule['implementation'] = keyword.value.id
+                            if keyword.arg == 'attrs':
+                                rule['attributes'] = {}
+                                for index, key in enumerate(keyword.value.keys):
+                                    value = keyword.value.values[index]
+                                    rule['attributes'][key.s] = {
+                                        'type': value.func.attr,
+                                        'parameters': {}
+                                    }
+                                    # Check for parameters
+                                    for param_keyword in value.keywords:
+                                        if isinstance(param_keyword.value, ast.NameConstant):
+                                            needed_value = str(param_keyword.value.value)
+                                        elif isinstance(param_keyword.value, ast.Str):
+                                            needed_value = param_keyword.value.s
+                                        rule['attributes'][key.s]['parameters'][param_keyword.arg] = needed_value
+                        content['rules'][rule['name']] = rule
+                    # Check for macro data
+                    elif isinstance(element, ast.FunctionDef):
+                        if len(element.args.args) == 1 and element.args.args[0].arg == 'ctx':
+                            impl = {}
+                            impl['name'] = element.name
+                            impl['doc'] = element.body[0].value.s
+                            content['implementations'][impl['name']] = impl
+                        elif isinstance(element, ast.FunctionDef):
+                            macro = {}
+                            macro['name'] = element.name
+                            macro['doc'] = element.body[0].value.s
+                            content['macros'][macro['name']] = macro
+
+            except (SyntaxError, KeyError) as e:
+                # Looks like file has no Python based syntax. So no documentation to catch
+                self.log.warning("Problems during parsing of {} happened: {}".format(bzl_file, e))
+                return []
+
+        # Store parsed content for further requests
+        self.bzl_content[bzl_file] = content
+
+        return content

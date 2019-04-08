@@ -237,6 +237,14 @@ Used abbreviations: ws=workspace, pack=package, targ=target, impl=implementation
      - ⛔
      - ⛔
      - ⛔
+   * - :ref:`option_show_invocation`
+     - 👍
+     - 👍
+     - 👍
+     - 👍
+     - ⛔
+     - ⛔
+     - ⛔
    * - :ref:`option_show_workspace`
      - 👍
      - 👍
@@ -617,9 +625,9 @@ show_implementation
      - 👍
      - 👍
      - 👍
-     - 👍
-     - 👍
-     - 👍
+     - ⛔
+     - ⛔
+     - ⛔
 
 If ``show_implementation`` is given, the name of the implementation function of found rules gets printed::
 
@@ -632,6 +640,41 @@ If ``show_implementation`` is given, the name of the implementation function of 
 .. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
    :path: ./bazel_example
    :show_implementation:
+
+.. _option_show_invocation:
+
+show_invocation
+~~~~~~~~~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - ws
+     - pack
+     - targ
+     - rule
+     - macro
+     - impl.
+     - attr
+   * - 👍
+     - 👍
+     - 👍
+     - 👍
+     - ⛔
+     - ⛔
+     - ⛔
+
+If ``show_invocation`` is given, a generated invocation string based on name an attribute names gets printed::
+
+    .. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+       :path: ./bazel_example
+       :show_invocation:
+
+**Result**
+
+.. autobazel-rule:: //main:hello-world.bzl:custom_build_rule
+   :path: ./bazel_example
+   :show_invocation:
 
 .. _option_show_workspace:
 
@@ -768,6 +811,7 @@ The following documentation of the complete Bazel Workspace uses nearly every av
        :show_workspace:         // from here layout options only
        :show_workspace_path:
        :show_implementation:
+       :show_invocation:
 
 **Result**
 
@@ -782,3 +826,4 @@ The following documentation of the complete Bazel Workspace uses nearly every av
    :show_workspace:
    :show_workspace_path:
    :show_implementation:
+   :show_invocation:
