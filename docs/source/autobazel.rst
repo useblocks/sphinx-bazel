@@ -261,6 +261,14 @@ Used abbreviations: ws=workspace, pack=package, targ=target, impl=implementation
      - 👍
      - 👍
      - 👍
+   * - :ref:`option_raw`
+     - 👍
+     - 👍
+     - 👍
+     - 👍
+     - 👍
+     - 👍
+     - 👍
 
 .. _option_path:
 
@@ -746,6 +754,47 @@ If ``:workspace_path`` is given, the workspace path will get added packages and 
 .. autobazel-attribute:: //main:hello-world.bzl:custom_build_rule:package_script
    :path: ./bazel_example
    :show_workspace_path:
+
+.. _option_raw:
+
+raw
+~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - ws
+     - pack
+     - targ
+     - rule
+     - macro
+     - impl.
+     - attr
+   * - 👍
+     - 👍
+     - 👍
+     - 👍
+     - 👍
+     - 👍
+     - 👍
+
+Deactivates the rendering of imported doc-string / doc-attributes.
+Instead the content will be shown in a code-block.
+
+This may be needed, if a bazel element gets documented multiple times and its rst-based doc-string contains elements,
+which should only get rendered once.
+For instance  a `sphinx needs <https://sphinxcontrib-needs.readthedocs.org>`_ requirement,
+which must be unique.
+
+.. code-block:: rst
+
+   .. autobazel-package:: //lib
+      :raw:
+
+**Result**
+
+.. autobazel-package:: //lib
+      :raw:
 
 
 .. _project_example:

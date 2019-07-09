@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.1.2
+-----
+
+* Improvement: Added :ref:`option_raw` to stop rendering doc_strings.
+
 0.1.1
 -----
 

@@ -38,6 +38,7 @@ class AutobazelCommonDirective(Directive):
         'show_workspace_path': directives.flag,  # Prints workspace_path name to all documented elements
         'show_implementation': directives.flag,  # Prints the used function name for implementation of a rule
         'show_invocation': directives.flag,  # Prints the invocation string
+        'raw': directives.flag,  # Integrates documentation as source code, so no rendering happens
     }
     final_argument_whitespace = True
 
@@ -133,7 +134,7 @@ class AutobazelCommonDirective(Directive):
                             if keyword.arg == 'name':
                                 workspace_name = keyword.value.s
                                 break
-            except KeyError:
+            except (KeyError, AttributeError):
                 pass
 
             if not workspace_name:
@@ -143,8 +144,7 @@ class AutobazelCommonDirective(Directive):
         if self.options.get('name', False):
             workspace_name = self.options.get('name', '')
 
-        if workfile_docstring is None:
-            workfile_docstring = ""
+        workfile_docstring = self._check_docstring(workfile_docstring)
 
         if self.options.get('hide', False) is None:  # If hide is set, no workpackage output
             workspace_rst = ""
@@ -164,6 +164,8 @@ class AutobazelCommonDirective(Directive):
                 if "BUILD" in files:
                     package = root.replace(self.workspace_path_abs, "")
                     package = "/" + package.replace("\\", "/")
+                    if package == '/':
+                        package = '//'
 
                     workspace_rst += """
 .. autobazel-package:: {package}""".format(package=package)
@@ -187,6 +189,8 @@ class AutobazelCommonDirective(Directive):
                         workspace_rst += "\n   :show_invocation:"
                     if self.options.get("path", False):
                         workspace_rst += "\n   :path: {}".format(self.root_path)
+                    if self.options.get("raw", False) is None:
+                        workspace_rst += "\n   :raw:"
 
         self.state_machine.insert_input(workspace_rst.split('\n'),
                                         self.state_machine.document.attributes['source'])
@@ -196,7 +200,7 @@ class AutobazelCommonDirective(Directive):
         package = self.arguments[0]
 
         package_path = os.path.join(self.workspace_path_abs, package.replace('//', ''))
-        package_build_file = os.path.join(package_path, 'BUILD')
+        package_build_file = os.path.join(self.workspace_path_abs, package_path, 'BUILD')
         if not os.path.exists(package_build_file):
             self.log.error("No BUILD file detected for calculated package path: {} in file {}."
                            "Used workspace {} in {}".format(package, self.state.document.current_source,
@@ -206,8 +210,8 @@ class AutobazelCommonDirective(Directive):
         with open(package_build_file) as f:
             tree = ast.parse(f.read(), package_build_file)
             package_docstring = ast.get_docstring(tree)
-        if package_docstring is None:
-            package_docstring = ""
+
+        package_docstring = self._check_docstring(package_docstring)
 
         if self.options.get('hide', False) is None:  # If hide is set, no package output
             package_rst = ""
@@ -257,6 +261,8 @@ class AutobazelCommonDirective(Directive):
                             package_rst += "\n   :show_invocation:"
                         if self.options.get("path", False):
                             package_rst += "\n   :path: {}".format(self.root_path)
+                        if self.options.get("raw", False) is None:
+                            package_rst += "\n   :raw:"
 
         self.state_machine.insert_input(package_rst.split('\n'),
                                         self.state_machine.document.attributes['source'])
@@ -273,11 +279,16 @@ class AutobazelCommonDirective(Directive):
 
         file_path, file_extension = os.path.splitext(target_path)
         if file_extension in ['.bzl']:  # Only check for docstring, if we are sure AST can handle it.
-            content = self._parse_bzl(target_path)
-            target_docstring = content['doc']
+            try:
+                content = self._parse_bzl(target_path)
+                target_docstring = content['doc']
+            except BazelParseException as e:
+                self.log.warning(e)
+                target_docstring = ''
+        else:
+            target_docstring = ''
 
-        if file_extension not in ['.bzl'] or target_docstring is None:
-            target_docstring = ""
+        target_docstring = self._check_docstring(target_docstring)
 
         options_rst = ""
         if self.options.get('hide', False) is None:  # If hide is set, no target output
@@ -353,9 +364,7 @@ class AutobazelCommonDirective(Directive):
         rule_attrs = content['rules'][rule_name]['attributes']
         rule_invocation = '{}({})'.format(rule_name, ', '.join(rule_attrs.keys()))
 
-        # We have have found a rule_doc in the tree, but no value/None was set.
-        if rule_doc is None:
-            rule_doc = ""
+        rule_doc = self._check_docstring(rule_doc)
 
         options_rst = ""
         options_rst += "   :implementation: {impl}\n".format(impl=rule_impl)
@@ -409,9 +418,7 @@ class AutobazelCommonDirective(Directive):
 
         macro_doc = content['macros'][macro_name]['doc']
 
-        # We have have found a rule_doc in the tree, but no value/None was set.
-        if macro_doc is None:
-            macro_doc = ""
+        macro_doc = self._check_docstring(macro_doc)
 
         options_rst = ""
         if self.options.get('show_workspace', False) is None:
@@ -453,9 +460,7 @@ class AutobazelCommonDirective(Directive):
 
         impl_doc = content['implementations'][impl_name]['doc']
 
-        # We have have found a rule_doc in the tree, but no value/None was set.
-        if impl_doc is None:
-            impl_doc = ""
+        impl_doc = self._check_docstring(impl_doc)
 
         options_rst = ""
         if self.options.get('show_workspace', False) is None:
@@ -514,6 +519,8 @@ class AutobazelCommonDirective(Directive):
         except KeyError:
             doc_string = ''
 
+        doc_string = self._check_docstring(doc_string)
+
         options_rst = ""
         if self.options.get('show_workspace', False) is None:
             options_rst += "   :show_workspace:\n"
@@ -556,6 +563,8 @@ class AutobazelCommonDirective(Directive):
             directive_rst += "\n   :show_invocation:"
         if self.options.get("path", False):
             directive_rst += "\n   :path: {}".format(self.root_path)
+        if self.options.get("raw", False) is None:
+            directive_rst += "\n   :raw:"
         return directive_rst
 
     def _parse_bzl(self, bzl_file):
@@ -588,7 +597,8 @@ class AutobazelCommonDirective(Directive):
                 for element in tree.body:
                     # Check for rule data
                     if isinstance(element, ast.Assign) and isinstance(element.value, ast.Call) \
-                            and element.value.func.id == 'rule':
+                            and hasattr(element.value.func, 'id') and element.value.func.id == 'rule':
+
                         rule = {}
                         rule['name'] = element.targets[0].id
                         for keyword in element.value.keywords:
@@ -610,27 +620,47 @@ class AutobazelCommonDirective(Directive):
                                             needed_value = str(param_keyword.value.value)
                                         elif isinstance(param_keyword.value, ast.Str):
                                             needed_value = param_keyword.value.s
+                                        else:
+                                            needed_value = ""
                                         rule['attributes'][key.s]['parameters'][param_keyword.arg] = needed_value
                         content['rules'][rule['name']] = rule
                     # Check for macro data
                     elif isinstance(element, ast.FunctionDef):
                         if len(element.args.args) == 1 and element.args.args[0].arg == 'ctx':
-                            impl = {}
-                            impl['name'] = element.name
-                            impl['doc'] = element.body[0].value.s
-                            content['implementations'][impl['name']] = impl
+                            try:
+                                impl = {}
+                                impl['name'] = element.name
+                                # impl['doc'] = element.body[0].value.s
+                                impl['doc'] = ast.get_docstring(element)
+                                content['implementations'][impl['name']] = impl
+                            except AttributeError as e:
+                                pass
                         elif isinstance(element, ast.FunctionDef):
                             macro = {}
                             macro['name'] = element.name
-                            macro['doc'] = element.body[0].value.s
+                            macro['doc'] = ast.get_docstring(element)
                             content['macros'][macro['name']] = macro
 
             except (SyntaxError, KeyError) as e:
                 # Looks like file has no Python based syntax. So no documentation to catch
-                self.log.warning("Problems during parsing of {} happened: {}".format(bzl_file, e))
-                return []
+                raise BazelParseException("Problems during parsing of {} happened: {}".format(bzl_file, e))
 
         # Store parsed content for further requests
         self.bzl_content[bzl_file] = content
 
         return content
+
+    def _check_docstring(self, doc_string):
+        if doc_string is None:
+            return ''
+
+        if self.options.get('raw', False) is None and doc_string != '':
+            new_doc_string = '.. code-block:: rst\n\n   {doc_string}'.format(
+                doc_string='\n   '.join(doc_string.split('\n')))
+            return new_doc_string
+
+        return doc_string
+
+
+class BazelParseException(BaseException):
+    pass
