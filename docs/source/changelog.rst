@@ -5,6 +5,9 @@ Changelog
 -----
 
 * Improvement: Added :ref:`option_raw` to stop rendering doc_strings.
+* Improvement: Added :ref:`option_show_type` for autobazel and  :ref:`domain_option_show_type` for the domain
+  to show the type of the object as prefix.
+* Bugfix: Several minor fixes to  get a stable parsing of bazel-files.
 
 0.1.1
 -----

@@ -38,6 +38,7 @@ class AutobazelCommonDirective(Directive):
         'show_workspace_path': directives.flag,  # Prints workspace_path name to all documented elements
         'show_implementation': directives.flag,  # Prints the used function name for implementation of a rule
         'show_invocation': directives.flag,  # Prints the invocation string
+        'show_type': directives.flag,  # Prints the type as prefix before the name/path
         'raw': directives.flag,  # Integrates documentation as source code, so no rendering happens
     }
     final_argument_whitespace = True
@@ -149,13 +150,18 @@ class AutobazelCommonDirective(Directive):
         if self.options.get('hide', False) is None:  # If hide is set, no workpackage output
             workspace_rst = ""
         else:
+            options_rst = ''
+            if self.options.get('show_type', False) is None:
+                options_rst += "   :show_type:\n"
             workspace_rst = """
 .. bazel:workspace:: {workspace_name}
    :path: {path}
+{options}
 
    {docstring}
             """.format(workspace_name=workspace_name,
                        path=workspace_path,
+                       options=options_rst,
                        docstring="\n   ".join(workfile_docstring.split('\n')))
 
         if self.options.get('packages', False) is None:
@@ -187,6 +193,8 @@ class AutobazelCommonDirective(Directive):
                         workspace_rst += "\n   :show_implementation:"
                     if self.options.get("show_invocation", False) is None:
                         workspace_rst += "\n   :show_invocation:"
+                    if self.options.get("show_type", False) is None:
+                        workspace_rst += "\n   :show_type:"
                     if self.options.get("path", False):
                         workspace_rst += "\n   :path: {}".format(self.root_path)
                     if self.options.get("raw", False) is None:
@@ -213,6 +221,7 @@ class AutobazelCommonDirective(Directive):
 
         package_docstring = self._check_docstring(package_docstring)
 
+        package_name_string = package
         if self.options.get('hide', False) is None:  # If hide is set, no package output
             package_rst = ""
         else:
@@ -223,13 +232,15 @@ class AutobazelCommonDirective(Directive):
                 options_rst += "   :show_workspace_path:\n"
             if self.options.get('path', False):
                 options_rst += "   :path: {}\n".format(self.workspace_path_abs)
+            if self.options.get('show_type', False) is None:
+                options_rst += "   :show_type:\n"
 
             package_rst = """
 .. bazel:package:: {package}
 {options}
 
    {docstring}
-            """.format(package=package,
+            """.format(package=package_name_string,
                        options=options_rst,
                        docstring="\n   ".join(package_docstring.split('\n')))
 
@@ -259,6 +270,8 @@ class AutobazelCommonDirective(Directive):
                             package_rst += "\n   :show_implementation:"
                         if self.options.get("show_invocation", False) is None:
                             package_rst += "\n   :show_invocation:"
+                        if self.options.get("show_type", False) is None:
+                            package_rst += "\n   :show_type:"
                         if self.options.get("path", False):
                             package_rst += "\n   :path: {}".format(self.root_path)
                         if self.options.get("raw", False) is None:
@@ -291,6 +304,7 @@ class AutobazelCommonDirective(Directive):
         target_docstring = self._check_docstring(target_docstring)
 
         options_rst = ""
+        target_name_string = target
         if self.options.get('hide', False) is None:  # If hide is set, no target output
             target_rst = ""
         else:
@@ -300,12 +314,14 @@ class AutobazelCommonDirective(Directive):
                 options_rst += "   :show_workspace_path:\n"
             if self.options.get('path', False):
                 options_rst += "   :path: {}\n".format(self.workspace_path_abs)
+            if self.options.get('show_type', False) is None:
+                options_rst += "   :show_type:\n"
 
             target_rst = """
 .. bazel:target:: {target}
 {options}
    {docstring}
-            """.format(target=target,
+            """.format(target=target_name_string,
                        options=options_rst,
                        docstring="\n   ".join(target_docstring.split('\n')))
 
@@ -359,7 +375,11 @@ class AutobazelCommonDirective(Directive):
 
         if rule_name not in content['rules'].keys():
             self.log.warning('Unknown rule {}'.format(rule))
-        rule_doc = content['rules'][rule_name]['doc']
+        try:
+            rule_doc = content['rules'][rule_name]['doc']
+        except KeyError:
+            rule_doc = ''
+
         rule_impl = content['rules'][rule_name]['implementation']
         rule_attrs = content['rules'][rule_name]['attributes']
         rule_invocation = '{}({})'.format(rule_name, ', '.join(rule_attrs.keys()))
@@ -377,6 +397,8 @@ class AutobazelCommonDirective(Directive):
             options_rst += "   :show_implementation: \n"
         if self.options.get("show_invocation", False) is None:
             options_rst += "   :show_invocation: \n"
+        if self.options.get("show_type", False) is None:
+            options_rst += "   :show_type: \n"
         if self.options.get('path', False):
             options_rst += "   :path: {}\n".format(self.workspace_path_abs)
 
@@ -425,6 +447,8 @@ class AutobazelCommonDirective(Directive):
             options_rst += "   :show_workspace:\n"
         if self.options.get('show_workspace_path', False) is None:
             options_rst += "   :show_workspace_path:\n"
+        if self.options.get("show_type", False) is None:
+            options_rst += "   :show_type: \n"
         if self.options.get('path', False):
             options_rst += "   :path: {}\n".format(self.workspace_path_abs)
 
@@ -467,6 +491,8 @@ class AutobazelCommonDirective(Directive):
             options_rst += "   :show_workspace:\n"
         if self.options.get('show_workspace_path', False) is None:
             options_rst += "   :show_workspace_path:\n"
+        if self.options.get("show_type", False) is None:
+            options_rst += "   :show_type: \n"
         if self.options.get('path', False):
             options_rst += "   :path: {}\n".format(self.workspace_path_abs)
 
@@ -526,6 +552,8 @@ class AutobazelCommonDirective(Directive):
             options_rst += "   :show_workspace:\n"
         if self.options.get('show_workspace_path', False) is None:
             options_rst += "   :show_workspace_path:\n"
+        if self.options.get("show_type", False) is None:
+            options_rst += "   :show_type: \n"
         if self.options.get('path', False):
             options_rst += "   :path: {}\n".format(self.workspace_path_abs)
 
@@ -561,6 +589,8 @@ class AutobazelCommonDirective(Directive):
             directive_rst += "\n   :show_implementation:"
         if self.options.get("show_invocation", False) is None:
             directive_rst += "\n   :show_invocation:"
+        if self.options.get("show_type", False) is None:
+            directive_rst += "\n   :show_type:"
         if self.options.get("path", False):
             directive_rst += "\n   :path: {}".format(self.root_path)
         if self.options.get("raw", False) is None:

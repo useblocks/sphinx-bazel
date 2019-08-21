@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 # REs for Bazel signatures
 bzl_sig_re = re.compile(
-    r'''^  \/\/([\w\/]*)     # package name
+    r'''^  \/\/([\w\/.-]*)     # package name
            (:([\w\/.-]*))?   # target name
            (:([\w\/.-]*))?   # rule, macro or impl name (named later internally as internal)
            (:([\w\/.-]*))?   # attribute name 
@@ -38,6 +38,7 @@ class BazelObject(ObjectDescription):
         'show_workspace_path': directives.flag,
         'show_implementation': directives.flag,
         'show_invocation': directives.flag,
+        'show_type': directives.flag,
     }
 
     def __init__(self, *args, **kwargs):
@@ -63,7 +64,7 @@ class BazelObject(ObjectDescription):
 
     def handle_signature(self, sig, signode):
         """
-        Transform a Bazel signatur into RST nodes.
+        Transform a Bazel signature into RST nodes.
 
         :param sig:
                 :param signode:
@@ -89,13 +90,22 @@ class BazelObject(ObjectDescription):
         signode['package'] = package
         signode['target'] = target
 
+        sig_type = 'package'
         sig_text = '//{}'.format(package)
         if target:
             sig_text += ':{}'.format(target)
+            sig_type = 'target'
         if internal:
             sig_text += ':{}'.format(internal)
+            sig_type = self.objtype
         if attribute:
             sig_text += ':{}'.format(attribute)
+            sig_type = 'attribute'
+
+        if self.options.get('show_type', False) is None:
+            sig_type_string = sig_type + ': '
+            signode += addnodes.desc_name(sig_type_string, sig_type_string, classes=['bazel', 'type', sig_type])
+
         signode += addnodes.desc_name(sig_text, sig_text)
 
         if self.options.get('show_workspace', False) is None:  # if flag is set, value is None

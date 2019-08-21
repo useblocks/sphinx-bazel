@@ -119,9 +119,12 @@ sphinx project.
 
 ``Sphinx-Bazel`` is part of a software bundle, which was designed to support the development of
 ISO 26262 compliant software. Other tools are:
-`sphinx-need <https://sphinxcontrib-needs.readthedocs.io>`_,
-`sphinx-test-reports <https://sphinx-test-reports.readthedocs.io>`_ and
-`tox-envreport <https://tox-envreport.readthedocs.io>`_.
+`sphinx-needs <https://sphinxcontrib-needs.readthedocs.io>`_,
+`sphinx-test-reports <https://sphinx-test-reports.readthedocs.io>`_,
+`tox-envreport <https://tox-envreport.readthedocs.io>`_ and
+`metric-farmer <https://metricfarmer.readthedocs.io/en/latest/>`_.
+
+
 
 
 Contents

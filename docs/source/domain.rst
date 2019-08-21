@@ -462,3 +462,36 @@ To document a single attribute use
 .. bazel:attribute:: //my/package:file.bzl:my_rule:attribute_1
 
       Takes a string, which is used to perform **awesome** stuff
+
+Common options
+--------------
+
+Following options have all above directives in common.
+
+.. _domain_option_show_type:
+
+show_type
+~~~~~~~~~
+
+Adds a prefix like ``package:`` to show the type.
+
+If using HTML as builder, the prefix will have the css classes: **bazel** , **type** and one of the following
+types: **workspace**, **package**, **rule**, **implementation**, **macro** or **attribute**.
+
+
+.. code-block:: rst
+
+   .. bazel:package:: //main
+      :show_type:
+
+      An awesome bazel package
+
+
+**Result**
+
+.. bazel:package:: //main
+   :show_type:
+
+   An awesome bazel package
+
+

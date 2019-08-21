@@ -269,6 +269,14 @@ Used abbreviations: ws=workspace, pack=package, targ=target, impl=implementation
      - 👍
      - 👍
      - 👍
+   * - :ref:`option_show_type`
+     - 👍
+     - 👍
+     - 👍
+     - 👍
+     - 👍
+     - 👍
+     - 👍
 
 .. _option_path:
 
@@ -796,6 +804,49 @@ which must be unique.
 .. autobazel-package:: //lib
       :raw:
 
+.. _option_show_type:
+
+show_type
+~~~~~~~~~
+
+.. list-table::
+   :header-rows: 1
+
+   * - ws
+     - pack
+     - targ
+     - rule
+     - macro
+     - impl.
+     - attr
+   * - 👍
+     - 👍
+     - 👍
+     - 👍
+     - 👍
+     - 👍
+     - 👍
+
+Adds a prefix like ``package:`` to show the type.
+
+If using HTML as builder, the prefix will have the css classes: **bazel** , **type** and one of the following
+types: **workspace**, **package**, **rule**, **implementation**, **macro** or **attribute**.
+
+
+.. code-block:: rst
+
+   .. autobazel-package:: //main
+      :targets:
+      :rule:
+      :show_type:
+
+**Result**
+
+.. autobazel-package:: //main
+   :targets:
+   :rules:
+   :show_type:
+
 
 .. _project_example:
 
@@ -861,6 +912,7 @@ The following documentation of the complete Bazel Workspace uses nearly every av
        :show_workspace_path:
        :show_implementation:
        :show_invocation:
+       :show_type:
 
 **Result**
 
@@ -876,3 +928,4 @@ The following documentation of the complete Bazel Workspace uses nearly every av
    :show_workspace_path:
    :show_implementation:
    :show_invocation:
+   :show_type:
