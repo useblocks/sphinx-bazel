@@ -6,6 +6,30 @@
 .. |nbsp| unicode:: 0xA0
    :trim:
 
+.. role:: underline
+    :class: underline
+
+.. only:: html
+
+   .. image:: https://img.shields.io/pypi/l/sphinx-bazel.svg
+       :target: https://pypi.python.org/pypi/sphinx-bazel
+       :alt: License
+   .. image:: https://img.shields.io/pypi/pyversions/sphinx-bazel.svg
+       :target: https://pypi.python.org/pypi/sphinx-bazel
+       :alt: Supported versions
+   .. image:: https://readthedocs.org/projects/sphinx-bazel/badge/?version=latest
+       :target: https://readthedocs.org/projects/sphinx-bazel/
+   .. image:: https://travis-ci.org/useblocks/sphinx-bazel.svg?branch=master
+       :target: https://travis-ci.org/useblocks/sphinx-bazel
+       :alt: Travis-CI Build Status
+   .. image:: https://img.shields.io/pypi/v/sphinx-bazel.svg
+       :target: https://pypi.python.org/pypi/sphinx-bazel
+       :alt: PyPI Package latest release
+
+   .. image:: https://img.shields.io/badge/sphinx-1.5%2C%201.6%2C%201.7%2C%201.8%2C%202.0%2C%202.1-blue.svg
+       :target: https://www.sphinx-doc.org
+       :alt: Supported Sphinx releases
+
 Sphinx-Bazel: rules inside sphinx
 =================================
 
