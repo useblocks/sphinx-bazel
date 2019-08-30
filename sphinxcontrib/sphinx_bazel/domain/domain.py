@@ -32,7 +32,6 @@ Domain directives
 
 from sphinx.domains import Domain, ObjType
 from sphinx.locale import l_
-from sphinx.util.nodes import make_refnode
 
 from sphinxcontrib.sphinx_bazel.domain.workspace import BazelWorkspace
 from sphinxcontrib.sphinx_bazel.domain.object import BazelObject

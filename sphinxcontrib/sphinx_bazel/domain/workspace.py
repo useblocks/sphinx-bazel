@@ -7,7 +7,6 @@ from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from sphinx import addnodes
 from sphinx.locale import _
-from sphinx.util.docfields import DocFieldTransformer
 
 
 class BazelWorkspace(Directive):

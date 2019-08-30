@@ -29,4 +29,3 @@ def setup(app):
     app.add_directive('autobazel-attribute', AutobazelCommonDirective)
 
     return {'version': VERSION}  # identifies the version of our extension
-

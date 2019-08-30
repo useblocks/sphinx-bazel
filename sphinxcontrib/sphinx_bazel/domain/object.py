@@ -18,12 +18,12 @@ logger = logging.getLogger(__name__)
 
 # REs for Bazel signatures
 bzl_sig_re = re.compile(
-    r'''^  \/\/([\w\/.-]*)     # package name
-           (:([\w\/.-]*))?   # target name
-           (:([\w\/.-]*))?   # rule, macro or impl name (named later internally as internal)
-           (:([\w\/.-]*))?   # attribute name 
-           $                 # and nothing more
-          ''', re.VERBOSE)
+    r'''^  \/\/([\w\/.-]*)    # package name
+(:([\w\/.-]*))?    # target name
+(:([\w\/.-]*))?    # rule, macro or impl name (named later internally as internal)
+(:([\w\/.-]*))?    # attribute name 
+$                  # and nothing more
+ ''', re.VERBOSE)  # noqa
 
 
 class BazelObject(ObjectDescription):
@@ -154,4 +154,3 @@ class BazelObject(ObjectDescription):
         ws_line = nodes.line()
         ws_line += addnodes.desc_addname(text, text)
         signode += ws_line
-

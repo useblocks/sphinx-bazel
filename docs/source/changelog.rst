@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.1.3
+-----
+
+* Improvement:  regular expression support for :ref:`option_packages` and :ref:`option_targets` (`#1 <https://github.com/useblocks/sphinx-bazel/issues/1>`_)
+* Bugfix: Fixed ``:hide:`` handling for :ref:`autobazel_workspace`.
+* Bugfix: Fixed error handling if target signature for :ref:`autobazel_target` is not valid.
+
+
 0.1.2
 -----
 

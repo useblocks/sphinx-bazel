@@ -14,8 +14,8 @@ def test_autobazel_macro(app, status, warning):
     assert 'My workspace description' in html
     assert 'main:hello-world.bzl:custom_macro' in html
     assert 'Args' in html
-    assert 'param format' in html
+    assert 'Param format' in html
     assert 'The format to write check report in' in html
-    assert 'param srcs:' in html
+    assert 'Param srcs' in html
     assert 'Source files to run the checks against.' in html
 

@@ -401,11 +401,30 @@ If ``:packages:`` is set, all found Bazel packages inside workspace will be prin
     .. autobazel-workspace:: ./bazel_example
        :packages:
 
+
+
 **Result**
 
 .. autobazel-workspace:: ./bazel_example
    :name: ws_package_example
    :packages:
+
+regular expression
++++++++++++++++++++
+
+``:packages:`` can also contain a regular expression which documents only packages, which match the given expression::
+
+   .. autobazel-workspace:: ./bazel_example
+      :packages: .*lib.*
+
+The above regular expression searches for all packages, which have **lib** in their name.
+
+**Result**
+
+.. autobazel-workspace:: ./bazel_example
+   :name: ws_package_example2
+   :packages: .*lib.*
+
 
 .. _option_targets:
 
@@ -442,6 +461,27 @@ If ``:targets:`` is set, all found Bazel targets inside found packages will be p
 .. autobazel-package:: //main
    :path: ./bazel_example
    :targets:
+
+With the above given regular expression sphinx-bazel will only care about targets, which have ``.cc`` as file ending.
+
+regular expression
++++++++++++++++++++
+
+``:targets:`` can also contain a regular expression which documents only targets, which match the given expression::
+
+   .. autobazel-package:: //main
+      :path: ./bazel_example
+      :targets: .*.cc
+
+With the above given regular expression sphinx-bazel will only care about targets, which have ``.cc`` as file ending.
+
+**Result**
+
+.. autobazel-package:: //main
+   :path: ./bazel_example
+   :targets: .*.cc
+
+
 
 .. _option_rules:
 

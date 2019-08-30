@@ -6,11 +6,12 @@ except ImportError:
 from sphinx_testing import with_app
 
 
-@with_app(buildername='html', srcdir='doc_test/autobazel_package')  # , warningiserror=True)
+@with_app(buildername='html', srcdir='doc_test/autobazel_package_regex')  # , warningiserror=True)
 def test_autobazel_package(app, status, warning):
     app.build()
     html = Path(app.outdir, 'index.html').read_text()
-    assert 'hello_world_workspace' in html
-    assert 'My workspace description' in html
-    assert 'lib' in html
+    assert 'MAIN package' in html
+    assert 'LIB package' not in html
+
+
 
