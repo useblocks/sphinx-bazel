@@ -175,7 +175,7 @@ Used abbreviations: ws=workspace, pack=package, targ=target, impl=implementation
      - ⛔
    * - :ref:`option_packages`
      - 👍
-     - ⛔
+     - 👍
      - ⛔
      - ⛔
      - ⛔

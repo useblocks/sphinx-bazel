@@ -228,7 +228,7 @@ class AutobazelCommonDirective(Directive):
                 options_rst += "\n   :path: {}".format(self.workspace_path_abs)
 
             package_rst = """
-            
+
 .. bazel:package:: {package}{options}
 
    {docstring}
@@ -247,27 +247,49 @@ class AutobazelCommonDirective(Directive):
                 except Exception as e:
                     raise SyntaxError('Given regex for packages is invalid. Error: {}'.format(e))
 
-            for root, dirs, files in os.walk(package_path):
-                for package_file in files:
-                    if package_file not in ['BUILD']:
-                        target_signature = "{package}:{target_path}".format(
-                            package=package,
-                            target_path=os.path.join(root.replace(package_path, ''), package_file)
-                        )
-                        # If pattern is defined but does not match the package name, we go on
-                        if pattern and not pattern.match(target_signature):
-                            continue
+            # for root, dirs, files in os.walk(package_path):
+            target_files = [f for f in os.listdir(package_path) if os.path.isfile(os.path.join(package_path, f))]
+            for target_file in target_files:
+                if target_file not in ['BUILD']:
+                    target_signature = "{package}:{target_path}".format(
+                        package=package,
+                        target_path=target_file
+                    )
+                    # If pattern is defined but does not match the package name, we go on
+                    if pattern and not pattern.match(target_signature):
+                        continue
 
-                        package_rst += "\n.. autobazel-target:: {target}".format(target=target_signature)
-                        package_rst = self._prepare_options(package_rst,
-                                                            ['show_workspace', 'show_workspace_path', 'rules',
-                                                             'implementations', 'macros', 'attributes',
-                                                             'show_implementation', 'show_invocation', 'show_type',
-                                                             'raw'])
+                    package_rst += "\n.. autobazel-target:: {target}".format(target=target_signature)
+                    package_rst = self._prepare_options(package_rst,
+                                                        ['show_workspace', 'show_workspace_path', 'rules',
+                                                         'implementations', 'macros', 'attributes',
+                                                         'show_implementation', 'show_invocation', 'show_type',
+                                                         'raw'])
 
-                        if self.options.get("path", False):
-                            package_rst += "\n   :path: {}".format(self.root_path)
-                        package_rst += "\n"
+                    if self.options.get("path", False):
+                        package_rst += "\n   :path: {}".format(self.root_path)
+                    package_rst += "\n"
+
+            sub_package_dirs = [d for d in os.listdir(package_path) if os.path.isdir(os.path.join(package_path, d))]
+            for sub_package_dir in sub_package_dirs:
+                subpackge_path = os.path.join(package_path, sub_package_dir)
+                sub_package_files = [f for f in os.listdir(subpackge_path)
+                                     if os.path.isfile(os.path.join(subpackge_path, f))]
+
+                if 'BUILD' not in sub_package_files:
+                    continue
+
+                subpackage_label = package_name_string + '/' +  sub_package_dir
+                package_rst += "\n.. autobazel-package:: {subpackage}".format(subpackage=subpackage_label)
+                package_rst = self._prepare_options(package_rst,
+                                                    ['show_workspace', 'show_workspace_path', 'targets', 'rules',
+                                                     'implementations', 'macros', 'attributes',
+                                                     'show_implementation', 'show_invocation', 'show_type',
+                                                     'raw'])
+
+                if self.options.get("path", False):
+                    package_rst += "\n   :path: {}".format(self.root_path)
+                package_rst += "\n"
 
         self.state_machine.insert_input(package_rst.split('\n'),
                                         self.state_machine.document.attributes['source'])
@@ -303,11 +325,11 @@ class AutobazelCommonDirective(Directive):
             options_rst += self._prepare_options(options_rst,
                                                  ['show_workspace', 'show_workspace_path', 'show_type'])
             if self.options.get('path', False):
-                options_rst += "   :path: {}\n".format(self.workspace_path_abs)
+                options_rst += "\n   :path: {}\n".format(self.workspace_path_abs)
 
             target_rst = """
-.. bazel:target:: {target}
-{options}
+.. bazel:target:: {target}{options}
+
    {docstring}
             """.format(target=target_name_string,
                        options=options_rst,
