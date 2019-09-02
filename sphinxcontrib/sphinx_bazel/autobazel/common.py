@@ -279,7 +279,7 @@ class AutobazelCommonDirective(Directive):
                 if 'BUILD' not in sub_package_files:
                     continue
 
-                subpackage_label = package_name_string + '/' +  sub_package_dir
+                subpackage_label = package_name_string + '/' + sub_package_dir
                 package_rst += "\n.. autobazel-package:: {subpackage}".format(subpackage=subpackage_label)
                 package_rst = self._prepare_options(package_rst,
                                                     ['show_workspace', 'show_workspace_path', 'targets', 'rules',
