@@ -9,7 +9,7 @@ requires = ['Sphinx']
 setup(
     name='sphinx-bazel',
     # If you raise, think about versions in conf.py and needs.py!!!
-    version='0.1.2',
+    version='0.1.3',
     url='http://github.com/useblocks/sphinx-bazel',
     download_url='http://pypi.python.org/pypi/sphinx-bazel',
     license='Apache 2.0',
