@@ -698,7 +698,8 @@ class AutobazelCommonDirective(Directive):
                                                     needed_value = param_keyword.value.s
                                                 else:
                                                     needed_value = ""
-                                                rule['attributes'][key.s]['parameters'][param_keyword.arg] = needed_value
+                                                rule['attributes'][key.s]['parameters'][param_keyword.arg] = \
+                                                    needed_value
                                 else:
                                     needed_value = ""
                         content['rules'][rule['name']] = rule
