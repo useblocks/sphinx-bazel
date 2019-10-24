@@ -681,22 +681,24 @@ class AutobazelCommonDirective(Directive):
                                 rule['implementation'] = keyword.value.id
                             if keyword.arg == 'attrs':
                                 rule['attributes'] = {}
-                                if isinstance(keyword.value, dict):
+                                if isinstance(keyword.value, ast.Dict):
                                     for index, key in enumerate(keyword.value.keys):
                                         value = keyword.value.values[index]
-                                        rule['attributes'][key.s] = {
-                                            'type': value.func.attr,
-                                            'parameters': {}
-                                        }
-                                        # Check for parameters
-                                        for param_keyword in value.keywords:
-                                            if isinstance(param_keyword.value, ast.NameConstant):
-                                                needed_value = str(param_keyword.value.value)
-                                            elif isinstance(param_keyword.value, ast.Str):
-                                                needed_value = param_keyword.value.s
-                                            else:
-                                                needed_value = ""
-                                            rule['attributes'][key.s]['parameters'][param_keyword.arg] = needed_value
+                                        # Be sure we handle no spooky (e.g. ast.Name) stuff here
+                                        if isinstance(value, ast.Call):
+                                            rule['attributes'][key.s] = {
+                                                'type': value.func.attr,
+                                                'parameters': {}
+                                            }
+                                            # Check for parameters
+                                            for param_keyword in value.keywords:
+                                                if isinstance(param_keyword.value, ast.NameConstant):
+                                                    needed_value = str(param_keyword.value.value)
+                                                elif isinstance(param_keyword.value, ast.Str):
+                                                    needed_value = param_keyword.value.s
+                                                else:
+                                                    needed_value = ""
+                                                rule['attributes'][key.s]['parameters'][param_keyword.arg] = needed_value
                                 else:
                                     needed_value = ""
                         content['rules'][rule['name']] = rule
