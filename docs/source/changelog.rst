@@ -4,7 +4,7 @@ Changelog
 0.1.3
 -----
 
-* Improvement: :ref:`autobazel_packages` now supports option :ref:`options_packages` to document nested packages.
+* Improvement: :ref:`autobazel_package` now supports option :ref:`option_packages` to document nested packages.
 * Improvement:  regular expression support for :ref:`option_packages` and :ref:`option_targets` (`#1 <https://github.com/useblocks/sphinx-bazel/issues/1>`_)
 * Bugfix: Fixed ``:hide:`` handling for :ref:`autobazel_workspace`.
 * Bugfix: Fixed error handling if target signature for :ref:`autobazel_target` is not valid.
