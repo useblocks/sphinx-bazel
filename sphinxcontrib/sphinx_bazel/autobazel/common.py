@@ -178,9 +178,12 @@ class AutobazelCommonDirective(Directive):
             for root, dirs, files in os.walk(self.workspace_path_abs):
                 if "BUILD" in files:
                     package = root.replace(self.workspace_path_abs, "")
-                    package = "/" + package.replace("\\", "/")
-                    if package == '/':
-                        package = '//'
+                    if not package.startswith('/'):
+                        package = "/" + package
+                    if not package.startswith('//'):
+                        package = "/" + package
+
+                    package = package.replace("\\", "/")
 
                     # If pattern is defined but does not match the package name, we go on
                     if pattern and not pattern.match(package):
@@ -245,9 +248,8 @@ class AutobazelCommonDirective(Directive):
                 try:
                     pattern = re.compile(target_regex)
                 except Exception as e:
-                    raise SyntaxError('Given regex for packages is invalid. Error: {}'.format(e))
+                    raise SyntaxError('Given regex for targets is invalid. Error: {}'.format(e))
 
-            # for root, dirs, files in os.walk(package_path):
             target_files = [f for f in os.listdir(package_path) if os.path.isfile(os.path.join(package_path, f))]
             for target_file in target_files:
                 if target_file not in ['BUILD']:
@@ -270,7 +272,17 @@ class AutobazelCommonDirective(Directive):
                         package_rst += "\n   :path: {}".format(self.root_path)
                     package_rst += "\n"
 
+        if 'packages' in self.options:
             sub_package_dirs = [d for d in os.listdir(package_path) if os.path.isdir(os.path.join(package_path, d))]
+
+            package_regex = self.options.get('packages')
+            pattern = None
+            if isinstance(package_regex, str) and len(package_regex) > 0:
+                try:
+                    pattern = re.compile(package_regex)
+                except Exception as e:
+                    raise SyntaxError('Given regex for packages is invalid. Error: {}'.format(e))
+
             for sub_package_dir in sub_package_dirs:
                 subpackge_path = os.path.join(package_path, sub_package_dir)
                 sub_package_files = [f for f in os.listdir(subpackge_path)
@@ -280,6 +292,9 @@ class AutobazelCommonDirective(Directive):
                     continue
 
                 subpackage_label = package_name_string + '/' + sub_package_dir
+                # If pattern is defined but does not match the package name, we go on
+                if pattern and not pattern.match(subpackage_label):
+                    continue
                 package_rst += "\n.. autobazel-package:: {subpackage}".format(subpackage=subpackage_label)
                 package_rst = self._prepare_options(package_rst,
                                                     ['show_workspace', 'show_workspace_path', 'targets', 'rules',
@@ -643,26 +658,47 @@ class AutobazelCommonDirective(Directive):
                         rule['name'] = element.targets[0].id
                         for keyword in element.value.keywords:
                             if keyword.arg == 'doc':
-                                rule['doc'] = keyword.value.s
+                                try:
+                                    rule['doc'] = keyword.value.s
+                                except AttributeError:
+                                    # A varaible may be referenced here, which stores the doc content.
+                                    if hasattr(keyword.value, 'id'):
+                                        rule['doc'] = ''
+                                        # rule_id = keyword.value.id  # EG GENPY_DOC
+                                        # ToDo: Values from an assignment can be really complex and maybe impossible
+                                        # to read without code execution.
+                                        # See following example, where a string gets finally a .strip() handling.
+                                        # So how to safely read MYPY_DOC??
+                                        #
+                                        # MYPY_DOC = """
+                                        # Generate python classes from messages with mypy
+                                        # """.strip()
+                                        self.log.debug('DocAccessProblems: doc is defined in an extra variable.\n'
+                                                       'Rule name: {}\nFile: {}'.format(rule['name'], bzl_file))
+                                    else:
+                                        rule['doc'] = ''
                             if keyword.arg == 'implementation':
                                 rule['implementation'] = keyword.value.id
                             if keyword.arg == 'attrs':
                                 rule['attributes'] = {}
-                                for index, key in enumerate(keyword.value.keys):
-                                    value = keyword.value.values[index]
-                                    rule['attributes'][key.s] = {
-                                        'type': value.func.attr,
-                                        'parameters': {}
-                                    }
-                                    # Check for parameters
-                                    for param_keyword in value.keywords:
-                                        if isinstance(param_keyword.value, ast.NameConstant):
-                                            needed_value = str(param_keyword.value.value)
-                                        elif isinstance(param_keyword.value, ast.Str):
-                                            needed_value = param_keyword.value.s
-                                        else:
-                                            needed_value = ""
-                                        rule['attributes'][key.s]['parameters'][param_keyword.arg] = needed_value
+                                if isinstance(keyword.value, dict):
+                                    for index, key in enumerate(keyword.value.keys):
+                                        value = keyword.value.values[index]
+                                        rule['attributes'][key.s] = {
+                                            'type': value.func.attr,
+                                            'parameters': {}
+                                        }
+                                        # Check for parameters
+                                        for param_keyword in value.keywords:
+                                            if isinstance(param_keyword.value, ast.NameConstant):
+                                                needed_value = str(param_keyword.value.value)
+                                            elif isinstance(param_keyword.value, ast.Str):
+                                                needed_value = param_keyword.value.s
+                                            else:
+                                                needed_value = ""
+                                            rule['attributes'][key.s]['parameters'][param_keyword.arg] = needed_value
+                                else:
+                                    needed_value = ""
                         content['rules'][rule['name']] = rule
                     # Check for macro data
                     elif isinstance(element, ast.FunctionDef):
