@@ -15,7 +15,7 @@ else:
 
     logging.basicConfig()  # Only need to do this once
 
-VERSION = '0.1.0'
+VERSION = '0.1.4'
 
 
 def setup(app):
