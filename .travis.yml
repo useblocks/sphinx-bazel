@@ -15,7 +15,7 @@ matrix:
 
 before_install:
 - sudo apt-get update
-- sudo apt-get install -y texlive-latex-recommended texlive-fonts-recommended texlive-latex-extra latexmk texlive-luatex texlive-xetex
+# - sudo apt-get install -y texlive-latex-recommended texlive-fonts-recommended texlive-latex-extra latexmk texlive-luatex texlive-xetex
 
 install:
 - pip install tox-travis
@@ -24,8 +24,8 @@ script:
 - tox
 
 after_success:
-- which python
-- pip install sphinx-bazel
-- cd docs
-- make latexpdf
+# - which python
+# - pip install sphinx-bazel
+# - cd docs
+# - make latexpdf
 
