@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.1.5
+-----
+
+* Bugfix: No crash, if objects do not have expected sub-attributes. E.g. rules do not have attributes.
+
 0.1.4
 -----
 
