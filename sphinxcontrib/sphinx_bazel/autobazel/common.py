@@ -642,7 +642,8 @@ class AutobazelCommonDirective(Directive):
             'doc': '',
             'rules': {},
             'macros': {},
-            'implementations': {}
+            'implementations': {},
+            'attributes': {}
         }
 
         with open(bzl_file) as f:
@@ -653,9 +654,11 @@ class AutobazelCommonDirective(Directive):
                     # Check for rule data
                     if isinstance(element, ast.Assign) and isinstance(element.value, ast.Call) \
                             and hasattr(element.value.func, 'id') and element.value.func.id == 'rule':
-
-                        rule = {}
-                        rule['name'] = element.targets[0].id
+                        rule = {
+                            "name": element.targets[0].id,
+                            "implementation" : {},
+                            "attributes": {}
+                        }
                         for keyword in element.value.keywords:
                             if keyword.arg == 'doc':
                                 try:
