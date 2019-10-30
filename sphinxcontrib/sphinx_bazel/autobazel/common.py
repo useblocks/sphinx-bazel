@@ -656,7 +656,7 @@ class AutobazelCommonDirective(Directive):
                             and hasattr(element.value.func, 'id') and element.value.func.id == 'rule':
                         rule = {
                             "name": element.targets[0].id,
-                            "implementation" : {},
+                            "implementation": {},
                             "attributes": {}
                         }
                         for keyword in element.value.keywords:
