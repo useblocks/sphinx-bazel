@@ -31,7 +31,7 @@ Domain directives
 # Java Domain impl: https://github.com/bronto/javasphinx/tree/master/javasphinx
 
 from sphinx.domains import Domain, ObjType
-from sphinx.locale import l_
+from sphinx.locale import _
 
 from sphinxcontrib.sphinx_bazel.domain.workspace import BazelWorkspace
 from sphinxcontrib.sphinx_bazel.domain.object import BazelObject
@@ -43,13 +43,13 @@ class BazelDomain(Domain):
     name = 'bazel'
     label = 'Bazel'
     object_types = {
-        'workspace': ObjType(l_('workspace'), 'workspace', 'ref'),
-        'package': ObjType(l_('package'), 'package', 'ref'),
-        'target': ObjType(l_('target'), 'target', 'ref'),
-        'rule': ObjType(l_('rule'), 'rule', 'ref'),
-        'macro': ObjType(l_('macro'), 'macro', 'ref'),
-        'impl': ObjType(l_('impl'), 'impl', 'ref'),
-        'attribute': ObjType(l_('attribute'), 'attribute', 'ref')
+        'workspace': ObjType(_('workspace'), 'workspace', 'ref'),
+        'package': ObjType(_('package'), 'package', 'ref'),
+        'target': ObjType(_('target'), 'target', 'ref'),
+        'rule': ObjType(_('rule'), 'rule', 'ref'),
+        'macro': ObjType(_('macro'), 'macro', 'ref'),
+        'impl': ObjType(_('impl'), 'impl', 'ref'),
+        'attribute': ObjType(_('attribute'), 'attribute', 'ref')
     }
     directives = {
         'workspace': BazelWorkspace,

@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.1.6
+-----
+
+* Bugfix: Be compliant with Sphinx >= 3.0
+
 0.1.5
 -----
 
