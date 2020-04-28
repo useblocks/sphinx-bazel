@@ -11,8 +11,8 @@ requires = ['Sphinx<2;python_version<"3.5"',
 
 setup(
     name='sphinx-bazel',
-    # If you raise, think about versions in conf.py and needs.py!!!
-    version='0.1.5',
+    # If you raise, think about versions in conf.py and sphinx_bazel.py!!!
+    version='0.1.6',
     url='http://github.com/useblocks/sphinx-bazel',
     download_url='http://pypi.python.org/pypi/sphinx-bazel',
     license='Apache 2.0',
