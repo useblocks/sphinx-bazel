@@ -5,3 +5,4 @@ python-coveralls
 tox
 nose
 sphinx_testing
+MarkupSafe<1.3.0

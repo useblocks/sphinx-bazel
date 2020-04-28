@@ -6,7 +6,8 @@ from setuptools import setup, find_packages
 
 requires = ['Sphinx<2;python_version<"3.5"',
             'Sphinx<3;python_version<"3.6"',
-            'Sphinx;python_version>="3.6"']
+            'Sphinx;python_version>="3.6"',
+            ]
 
 setup(
     name='sphinx-bazel',
