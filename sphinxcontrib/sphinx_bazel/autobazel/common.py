@@ -393,7 +393,7 @@ class AutobazelCommonDirective(Directive):
                                       rule.replace('//', '').rsplit(":", 1)[0].replace(':', '/'))
 
         if not os.path.exists(rule_file_path):
-            self.log.error("Target for rule does not exist: {rule_file_path}".format(target_path=rule_file_path))
+            self.log.error("Target for rule does not exist: {rule_file_path}".format(rule_file_path=rule_file_path))
             return []
 
         content = self._parse_bzl(rule_file_path)
