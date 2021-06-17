@@ -77,7 +77,7 @@ class AutobazelCommonDirective(Directive):
                     self.log.error("No workspace was defined before the {} definition of {}.\n "
                                    "Please define one, which can than be used as reference for "
                                    "calculating file paths.\n"
-                                   "Or use option :root-path: to document something without"
+                                   "Or use option :path: to document something without"
                                    "a bazel workspace.".format(self.name, self.arguments[0]))
                     return []
 
