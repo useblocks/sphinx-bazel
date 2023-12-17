@@ -23,6 +23,7 @@ setup(
     zip_safe=False,
     classifiers=[
         'Development Status :: 3 - Alpha',
+        'Framework :: Sphinx :: Domain',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
